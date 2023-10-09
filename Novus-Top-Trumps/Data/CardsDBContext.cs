@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Novus_Top_Trumps.Models;
+
+namespace Novus_Top_Trumps.Data
+{
+    public class CardsDBContext : DbContext
+    {
+        public CardsDBContext (DbContextOptions<CardsDBContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Novus_Top_Trumps.Models.CarsCard> CarsCard { get; set; } = default!;
+    }
+}
