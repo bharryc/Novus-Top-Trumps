@@ -1,0 +1,60 @@
+﻿body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+
+.heading {
+    color: #025f6d;
+    border-bottom: 2px solid #feb72b;
+    padding-bottom: 5px;
+}
+
+table {
+    width: 100%;
+    margin-bottom: 25px; /* Added spacing between tables and other elements */
+    border-collapse: collapse; /* Ensuring borders are neat */
+}
+
+.table-header {
+    background-color: #025f6d;
+    color: #ffffff;
+}
+
+    .table-header th {
+        padding: 10px; /* Padding for header cells */
+    }
+
+.table-row {
+    background-color: #ffffff;
+}
+
+    .table-row:hover {
+        background-color: #f1f1f1; /* Subtle highlight on hover */
+    }
+
+    .table-row td {
+        padding: 8px; /* Padding for data cells */
+        border: 1px solid #ddd; /* Border to separate cells */
+    }
+
+/* Spacing between sections */
+h2 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Winner styling */
+h2.winner {
+    color: #feb72b;
+}
+
+h2.tie {
+    color: #f0ad4e;
+}

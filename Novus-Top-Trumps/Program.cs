@@ -1,8 +1,18 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Novus_Top_Trumps.Data;
+using Novus_Top_Trumps.Models;
+using System;
+using System.Linq;
+
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<CardsDBContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CardsDBContext") ?? throw new InvalidOperationException("Connection string 'CardsDBContext' not found.")));
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -41,4 +51,20 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+PopulateCarsDb(app);
+
 app.Run();
+void PopulateCarsDb(IApplicationBuilder app)
+{
+    using var scope = app.ApplicationServices.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<CardsDBContext>();
+
+    if (!dbContext.CarsCard.Any())
+    {
+       foreach (var card in CarCardData.CarDeck)
+        {
+            dbContext.CarsCard.Add(card);
+        }
+       dbContext.SaveChanges();
+    }
+}
