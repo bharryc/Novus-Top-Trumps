@@ -1,6 +1,6 @@
 ﻿namespace Novus_Top_Trumps.Models
 {
-    public class CarsCard
+    public class CarsCards
     {
         public int ID { get; set; }
         public string Name { get; set; }

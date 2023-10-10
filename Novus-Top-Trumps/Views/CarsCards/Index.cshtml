@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Novus_Top_Trumps.Models.CarsCard>
+﻿@model IEnumerable<Novus_Top_Trumps.Models.CarsCards>
 
 @{
     ViewData["Title"] = "Index";
@@ -9,6 +9,10 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<p>
+    <a asp-controller="CarsCards" asp-action="CompareCards" asp-route-card1Id="1" asp-route-card2Id="2" asp-route-attributeName="weight">CompareCards</a>
+</p>
+
 <table class="table">
     <thead>
         <tr>
@@ -51,7 +55,7 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a> |
             </td>
         </tr>
 }

@@ -19,6 +19,11 @@ namespace Novus_Top_Trumps.Controllers
             _context = context;
         }
 
+        public IActionResult CarsCards()
+        {
+            return View();
+        }
+
         // GET: CarsCards
         public async Task<IActionResult> Index()
         {
@@ -56,7 +61,7 @@ namespace Novus_Top_Trumps.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Speed,Horsepower,Weight,Price")] CarsCard carsCard)
+        public async Task<IActionResult> Create([Bind("ID,Name,Speed,Horsepower,Weight,Price")] CarsCards carsCard)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +93,7 @@ namespace Novus_Top_Trumps.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Speed,Horsepower,Weight,Price")] CarsCard carsCard)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Speed,Horsepower,Weight,Price")] CarsCards carsCard)
         {
             if (id != carsCard.ID)
             {
@@ -153,6 +158,78 @@ namespace Novus_Top_Trumps.Controllers
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> CompareCards(string attributeName)
+        {
+            int minId = await _context.CarsCard.MinAsync(card => card.ID);
+            int maxId = await _context.CarsCard.MaxAsync(card => card.ID);
+
+            // Check for insufficient cards
+            if (minId == maxId)
+            {
+                // Consider redirecting to a user-friendly error page or displaying a message.
+                return View("Error", new ErrorViewModel { RequestId = "Not enough cards to compare" });
+            }
+
+            int? card1Id, card2Id;
+            do
+            {
+                card1Id = new Random().Next(minId, maxId + 1);
+                card2Id = new Random().Next(minId, maxId + 1);
+            } while (card1Id == card2Id || await _context.CarsCard.FindAsync(card1Id) == null || await _context.CarsCard.FindAsync(card2Id) == null);
+
+            // Default attribute if one is not provided
+            attributeName = attributeName ?? "speed";
+
+            var card1 = await _context.CarsCard.FindAsync(card1Id);
+            var card2 = await _context.CarsCard.FindAsync(card2Id);
+
+            if (card1 == null || card2 == null)
+            {
+                return NotFound();
+            }
+
+            int card1AttributeValue;
+            int card2AttributeValue;
+            bool? isCard1Winner = null;
+
+            // Compare attributes
+            switch (attributeName.ToLower())
+            {
+                case "speed":
+                    card1AttributeValue = card1.Speed;
+                    card2AttributeValue = card2.Speed;
+                    isCard1Winner = card1.Speed > card2.Speed;
+                    break;
+                case "horsepower":
+                    card1AttributeValue = card1.Horsepower;
+                    card2AttributeValue = card2.Horsepower;
+                    isCard1Winner = card1.Horsepower > card2.Horsepower;
+                    break;
+                case "weight":
+                    card1AttributeValue = card1.Weight;
+                    card2AttributeValue = card2.Weight;
+                    isCard1Winner = card1.Weight > card2.Weight;
+                    break;
+                case "price":
+                    card1AttributeValue = card1.Price;
+                    card2AttributeValue = card2.Price;
+                    isCard1Winner = card1.Price > card2.Price;
+                    break;
+                default:
+                    return BadRequest("Invalid attribute name");
+            }
+
+            // Populate ViewData
+            ViewData["IsCard1Winner"] = isCard1Winner;
+            ViewData["Card1AttributeValue"] = card1AttributeValue;
+            ViewData["Card2AttributeValue"] = card2AttributeValue;
+            ViewData["Card1Name"] = card1.Name;
+            ViewData["Card2Name"] = card2.Name;
+            ViewData["AttributeName"] = attributeName;
+
+            return View();
         }
 
         private bool CarsCardExists(int id)

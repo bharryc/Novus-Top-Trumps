@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Novus_Top_Trumps.Models.CarsCards>
+
+@{
+    ViewData["Title"] = "CompareCards";
+
+    var isCard1Winner = ViewData["IsCard1Winner"] as bool?;
+    var card1AttributeValue = ViewData["Card1AttributeValue"] as int?;
+    var card2AttributeValue = ViewData["Card2AttributeValue"] as int?;
+    var card1Name = ViewData["Card1Name"] as string;
+    var card2Name = ViewData["Card2Name"] as string;
+    var attributeName = ViewData["AttributeName"] as string;
+}
+
+<h2>Card Comparison</h2>
+
+<p>Comparing <strong>@attributeName</strong> between:</p>
+
+<h3>@card1Name</h3>
+<p>@attributeName: @card1AttributeValue</p>
+
+<h3>@card2Name</h3>
+<p>@attributeName: @card2AttributeValue</p>
+
+@if (isCard1Winner.HasValue)
+{
+    <h2>Winner: @(isCard1Winner.Value ? card1Name : card2Name)</h2>
+}
+else
+{
+    <h2>It's a Tie!</h2>
+}
