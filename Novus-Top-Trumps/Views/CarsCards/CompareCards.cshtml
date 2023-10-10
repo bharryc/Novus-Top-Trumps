@@ -4,7 +4,7 @@
     ViewData["Title"] = "CompareCards";
 }
 
-<h2>Card Comparison</h2>
+<h2 class="heading">Card Comparison</h2>
 
 <p>Comparing <strong>@Model.AttributeName</strong> between:</p>
 
@@ -16,16 +16,19 @@
 
 @if (Model.IsCard1Winner.HasValue)
 {
-    <h2>Winner: @(Model.IsCard1Winner.Value ? Model.Card1.Name : Model.Card2.Name)</h2>
+    <h2 class="heading winner">Winner: @(Model.IsCard1Winner.Value ? Model.Card1.Name : Model.Card2.Name)</h2>
+
 }
 else
 {
-    <h2>It's a Tie!</h2>
+    <h2 class="heading tie">It's a Tie!</h2>
+
 }
 
-<h2>Deck 1</h2>
+<h2 class="heading">Deck 1</h2>
 <table>
-    <thead>
+
+    <thead class="table-header">
         <tr>
             <th>ID</th>
             <th>Name</th>
@@ -38,7 +41,8 @@ else
     <tbody>
         @foreach (var card in Model.Deck1)
         {
-            <tr>
+            <tr class="table-row">
+
                 <td>@card.ID</td>
                 <td>@card.Name</td>
                 <td>@card.Speed</td>
@@ -50,9 +54,9 @@ else
     </tbody>
 </table>
 
-<h2>Deck 2</h2>
+<h2 class="heading">Deck 2</h2>
 <table>
-    <thead>
+    <thead class="table-header">
         <tr>
             <th>ID</th>
             <th>Name</th>
@@ -65,7 +69,7 @@ else
     <tbody>
         @foreach (var card in Model.Deck2)
         {
-            <tr>
+            <tr class="table-row">
                 <td>@card.ID</td>
                 <td>@card.Name</td>
                 <td>@card.Speed</td>
