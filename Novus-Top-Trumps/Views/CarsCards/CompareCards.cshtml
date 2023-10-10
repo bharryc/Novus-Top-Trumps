@@ -1,31 +1,78 @@
-﻿@model IEnumerable<Novus_Top_Trumps.Models.CarsCards>
+﻿@model Novus_Top_Trumps.Controllers.CardComparisonViewModel
 
 @{
     ViewData["Title"] = "CompareCards";
-
-    var isCard1Winner = ViewData["IsCard1Winner"] as bool?;
-    var card1AttributeValue = ViewData["Card1AttributeValue"] as int?;
-    var card2AttributeValue = ViewData["Card2AttributeValue"] as int?;
-    var card1Name = ViewData["Card1Name"] as string;
-    var card2Name = ViewData["Card2Name"] as string;
-    var attributeName = ViewData["AttributeName"] as string;
 }
 
 <h2>Card Comparison</h2>
 
-<p>Comparing <strong>@attributeName</strong> between:</p>
+<p>Comparing <strong>@Model.AttributeName</strong> between:</p>
 
-<h3>@card1Name</h3>
-<p>@attributeName: @card1AttributeValue</p>
+<h3>@Model.Card1.Name</h3>
+<p>@Model.AttributeName: @Model.Card1AttributeValue</p>
 
-<h3>@card2Name</h3>
-<p>@attributeName: @card2AttributeValue</p>
+<h3>@Model.Card2.Name</h3>
+<p>@Model.AttributeName: @Model.Card2AttributeValue</p>
 
-@if (isCard1Winner.HasValue)
+@if (Model.IsCard1Winner.HasValue)
 {
-    <h2>Winner: @(isCard1Winner.Value ? card1Name : card2Name)</h2>
+    <h2>Winner: @(Model.IsCard1Winner.Value ? Model.Card1.Name : Model.Card2.Name)</h2>
 }
 else
 {
     <h2>It's a Tie!</h2>
 }
+
+<h2>Deck 1</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Speed</th>
+            <th>Horsepower</th>
+            <th>Weight</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var card in Model.Deck1)
+        {
+            <tr>
+                <td>@card.ID</td>
+                <td>@card.Name</td>
+                <td>@card.Speed</td>
+                <td>@card.Horsepower</td>
+                <td>@card.Weight</td>
+                <td>@card.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Deck 2</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Speed</th>
+            <th>Horsepower</th>
+            <th>Weight</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var card in Model.Deck2)
+        {
+            <tr>
+                <td>@card.ID</td>
+                <td>@card.Name</td>
+                <td>@card.Speed</td>
+                <td>@card.Horsepower</td>
+                <td>@card.Weight</td>
+                <td>@card.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>

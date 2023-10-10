@@ -162,28 +162,36 @@ namespace Novus_Top_Trumps.Controllers
 
         public async Task<IActionResult> CompareCards(string attributeName)
         {
-            int minId = await _context.CarsCard.MinAsync(card => card.ID);
-            int maxId = await _context.CarsCard.MaxAsync(card => card.ID);
+            // Retrieve all card IDs
+            var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
 
             // Check for insufficient cards
-            if (minId == maxId)
+            if (allCardIds.Count < 2)
             {
-                // Consider redirecting to a user-friendly error page or displaying a message.
                 return View("Error", new ErrorViewModel { RequestId = "Not enough cards to compare" });
             }
 
-            int? card1Id, card2Id;
-            do
+            var rand = new Random();
+
+            // Shuffle all cards (Fisher-Yates shuffle)
+            for (int i = allCardIds.Count - 1; i > 0; i--)
             {
-                card1Id = new Random().Next(minId, maxId + 1);
-                card2Id = new Random().Next(minId, maxId + 1);
-            } while (card1Id == card2Id || await _context.CarsCard.FindAsync(card1Id) == null || await _context.CarsCard.FindAsync(card2Id) == null);
+                int j = rand.Next(i + 1);
+                var temp = allCardIds[i];
+                allCardIds[i] = allCardIds[j];
+                allCardIds[j] = temp;
+            }
+
+            // Split into two decks
+            var halfIndex = allCardIds.Count / 2;
+            var deck1 = allCardIds.Take(halfIndex).ToList();
+            var deck2 = allCardIds.Skip(halfIndex).ToList();
 
             // Default attribute if one is not provided
             attributeName = attributeName ?? "speed";
 
-            var card1 = await _context.CarsCard.FindAsync(card1Id);
-            var card2 = await _context.CarsCard.FindAsync(card2Id);
+            var card1 = await _context.CarsCard.FindAsync(deck1.First());
+            var card2 = await _context.CarsCard.FindAsync(deck2.First());
 
             if (card1 == null || card2 == null)
             {
@@ -221,16 +229,21 @@ namespace Novus_Top_Trumps.Controllers
                     return BadRequest("Invalid attribute name");
             }
 
-            // Populate ViewData
-            ViewData["IsCard1Winner"] = isCard1Winner;
-            ViewData["Card1AttributeValue"] = card1AttributeValue;
-            ViewData["Card2AttributeValue"] = card2AttributeValue;
-            ViewData["Card1Name"] = card1.Name;
-            ViewData["Card2Name"] = card2.Name;
-            ViewData["AttributeName"] = attributeName;
+            var viewModel = new CardComparisonViewModel
+            {
+                Card1 = card1,
+                Card2 = card2,
+                Deck1 = await _context.CarsCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
+                Deck2 = await _context.CarsCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
+                AttributeName = attributeName,
+                IsCard1Winner = isCard1Winner,
+                Card1AttributeValue = card1AttributeValue,
+                Card2AttributeValue = card2AttributeValue
+            };
 
-            return View();
+            return View(viewModel);
         }
+
 
         private bool CarsCardExists(int id)
         {
