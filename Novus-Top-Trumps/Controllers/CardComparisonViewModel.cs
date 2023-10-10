@@ -13,4 +13,5 @@ namespace Novus_Top_Trumps.Controllers
         public int Card1AttributeValue { get; set; }
         public int Card2AttributeValue { get; set; }
     }
+
 }

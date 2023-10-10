@@ -249,5 +249,24 @@ namespace Novus_Top_Trumps.Controllers
         {
           return (_context.CarsCard?.Any(e => e.ID == id)).GetValueOrDefault();
         }
+
+        [HttpPost]
+        public IActionResult SelectAttributeForComparison(string attributeName)
+        {
+            // Simple validation: check if attributeName is one of the allowed values
+            var validAttributes = new[] { "speed", "horsepower", "weight", "price" };
+            if (!validAttributes.Contains(attributeName?.ToLower()))
+            {
+                return BadRequest("Invalid attribute selected");
+            }
+
+            return RedirectToAction("CompareCards", new { attributeName });
+        }
+
+        public IActionResult SelectAttribute()
+        {
+            return View();
+        }
+
     }
 }
