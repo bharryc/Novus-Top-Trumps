@@ -1,0 +1,36 @@
+﻿@{
+    List<CustomItemModel> customItems = ViewData["Decks"] as List<CustomItemModel>;
+    SelectList customItemList = new SelectList(customItems, "Id", "Name");
+    ViewData["Title"] = "Deck Selection";
+    int? selectedItemId = ViewData["DropDownId"] as int?;
+}
+
+<form>
+    <h1>Deck Selection</h1>
+    @Html.DropDownList("CustomItemDropdown", customItemList, "--- Select Custom Item ---")
+
+    @{
+        switch (selectedItemId)
+        {
+            case 1:
+                <text>
+                    <a class="nav-link text-dark" asp-area="" asp-controller="CarsCards" asp-action="Index">Next</a>
+                </text>
+                break;
+
+            case 2:
+                <text>
+                    <a class="nav-link text-dark" asp-area="" asp-controller="CarsCards" asp-action="Index">Next</a>
+                </text>
+                break;
+
+            default:
+                <text>
+                </text>
+                break;
+        }
+    }
+</form>
+
+
+
