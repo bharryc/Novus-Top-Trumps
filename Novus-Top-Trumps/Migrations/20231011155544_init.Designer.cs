@@ -11,8 +11,8 @@ using Novus_Top_Trumps.Data;
 namespace Novus_Top_Trumps.Migrations
 {
     [DbContext(typeof(CardsDBContext))]
-    [Migration("20231010131441_CarsCards")]
-    partial class CarsCards
+    [Migration("20231011155544_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -50,6 +50,35 @@ namespace Novus_Top_Trumps.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("CarsCard");
+                });
+
+            modelBuilder.Entity("Novus_Top_Trumps.Models.PokemonCards", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+
+                    b.Property<int>("Attack")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Defence")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Health")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Speed")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("PokemonCard");
                 });
 #pragma warning restore 612, 618
         }

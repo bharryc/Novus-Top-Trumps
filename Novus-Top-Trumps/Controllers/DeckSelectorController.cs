@@ -16,26 +16,13 @@ namespace Novus_Top_Trumps.Controllers
             
             List<CustomItemModel> customItems = new List<CustomItemModel>
             {
-                new CustomItemModel { Id = 1, Name = "Cars" },
-                new CustomItemModel { Id = 2, Name = "Pokemon" }
+                new CustomItemModel { Link = "../CarsCards", Name = "Cars" },
+                new CustomItemModel { Link = "../PokemonCards", Name = "Pokemon" }
             };
             
-
-            ViewData["Decks"] = customItems;
+            ViewBag.CustomItems = customItems;
             
             return View();
         }
-
-        [HttpPost]
-        public IActionResult Index(FormCollection form)
-        {
-            ViewData["DropDownId"] = Convert.ToInt32(form["CustomItemDropdown"]);
-
-            // Perform actions based on the selected item
-            
-
-            return View();
-        }
-        
     }
 }

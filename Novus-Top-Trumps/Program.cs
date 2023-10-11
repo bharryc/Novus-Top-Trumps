@@ -54,6 +54,8 @@ app.MapRazorPages();
 PopulateCarsDb(app);
 
 app.Run();
+
+
 void PopulateCarsDb(IApplicationBuilder app)
 {
     using var scope = app.ApplicationServices.CreateScope();

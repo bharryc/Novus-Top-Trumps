@@ -1,0 +1,83 @@
+﻿@model Novus_Top_Trumps.Controllers.PokemonComparisonViewModel
+
+@{
+    ViewData["Title"] = "CompareCards";
+}
+
+<h2 class="heading">Card Comparison</h2>
+
+<p>Comparing <strong>@Model.AttributeName</strong> between:</p>
+
+<h3>@Model.Card1.Name</h3>
+<p>@Model.AttributeName: @Model.Card1AttributeValue</p>
+
+<h3>@Model.Card2.Name</h3>
+<p>@Model.AttributeName: @Model.Card2AttributeValue</p>
+
+@if (Model.IsCard1Winner.HasValue)
+{
+    <h2 class="heading winner">Winner: @(Model.IsCard1Winner.Value ? Model.Card1.Name : Model.Card2.Name)</h2>
+
+}
+else
+{
+    <h2 class="heading tie">It's a Tie!</h2>
+
+}
+
+<h2 class="heading">Deck 1</h2>
+<table>
+
+    <thead class="table-header">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Speed</th>
+            <th>Attack</th>
+            <th>Defence</th>
+            <th>Health</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var card in Model.Deck1)
+        {
+            <tr class="table-row">
+
+                <td>@card.ID</td>
+                <td>@card.Name</td>
+                <td>@card.Speed</td>
+                <td>@card.Attack</td>
+                <td>@card.Defence</td>
+                <td>@card.Health</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="heading">Deck 2</h2>
+<table>
+    <thead class="table-header">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Speed</th>
+            <th>Attack</th>
+            <th>Defence</th>
+            <th>Health</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var card in Model.Deck2)
+        {
+            <tr class="table-row">
+                <td>@card.ID</td>
+                <td>@card.Name</td>
+                <td>@card.Speed</td>
+                <td>@card.Attack</td>
+                <td>@card.Defence</td>
+                <td>@card.Health</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Start Comparing</a>

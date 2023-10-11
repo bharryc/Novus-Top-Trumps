@@ -1,36 +1,20 @@
 ﻿@{
-    List<CustomItemModel> customItems = ViewData["Decks"] as List<CustomItemModel>;
-    SelectList customItemList = new SelectList(customItems, "Id", "Name");
+    List<CustomItemModel> customItems = ViewBag.CustomItems;
     ViewData["Title"] = "Deck Selection";
-    int? selectedItemId = ViewData["DropDownId"] as int?;
 }
 
-<form>
-    <h1>Deck Selection</h1>
-    @Html.DropDownList("CustomItemDropdown", customItemList, "--- Select Custom Item ---")
-
-    @{
-        switch (selectedItemId)
+<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Dropdown button
+    </button>
+    <ul class="dropdown-menu">
+        @foreach(CustomItemModel deck in customItems)
         {
-            case 1:
-                <text>
-                    <a class="nav-link text-dark" asp-area="" asp-controller="CarsCards" asp-action="Index">Next</a>
-                </text>
-                break;
-
-            case 2:
-                <text>
-                    <a class="nav-link text-dark" asp-area="" asp-controller="CarsCards" asp-action="Index">Next</a>
-                </text>
-                break;
-
-            default:
-                <text>
-                </text>
-                break;
+            <li><a class="dropdown-item" href=@deck.Link>@deck.Name</a></li>
         }
-    }
-</form>
+    </ul>
+</div>
+
 
 
 

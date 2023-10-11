@@ -50,7 +50,7 @@ namespace Novus_Top_Trumps.Migrations
                     b.ToTable("CarsCard");
                 });
 
-            modelBuilder.Entity("Novus_Top_Trumps.Models.Pokemon", b =>
+            modelBuilder.Entity("Novus_Top_Trumps.Models.PokemonCards", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
