@@ -8,7 +8,7 @@ using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
 using System;
 using System.Linq;
-
+using Novus_Top_Trumps.Models.Card_Data;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CardsDBContext>(options =>
@@ -51,12 +51,12 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-PopulateCarsDb(app);
+PopulateCardsDb(app);
 
 app.Run();
 
 
-void PopulateCarsDb(IApplicationBuilder app)
+void PopulateCardsDb(IApplicationBuilder app)
 {
     using var scope = app.ApplicationServices.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<CardsDBContext>();
@@ -68,5 +68,13 @@ void PopulateCarsDb(IApplicationBuilder app)
             dbContext.CarsCard.Add(card);
         }
        dbContext.SaveChanges();
+    }
+    if (!dbContext.PokemonCard.Any())
+    {
+        foreach (var card in PokemonCardData.PokemonDeck)
+        {
+            dbContext.PokemonCard.Add(card);
+        }
+        dbContext.SaveChanges();
     }
 }

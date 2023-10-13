@@ -205,17 +205,17 @@ namespace Novus_Top_Trumps.Controllers
                     card2AttributeValue = card2.Speed;
                     isCard1Winner = card1.Speed > card2.Speed;
                     break;
-                case "horsepower":
+                case "attack":
                     card1AttributeValue = card1.Attack;
                     card2AttributeValue = card2.Attack;
                     isCard1Winner = card1.Attack > card2.Attack;
                     break;
-                case "weight":
+                case "defence":
                     card1AttributeValue = card1.Defence;
                     card2AttributeValue = card2.Defence;
                     isCard1Winner = card1.Defence > card2.Defence;
                     break;
-                case "price":
+                case "health":
                     card1AttributeValue = card1.Health;
                     card2AttributeValue = card2.Health;
                     isCard1Winner = card1.Health > card2.Health;
@@ -249,7 +249,7 @@ namespace Novus_Top_Trumps.Controllers
         public IActionResult SelectAttributeForComparison(string attributeName)
         {
             // Simple validation: check if attributeName is one of the allowed values
-            var validAttributes = new[] { "speed", "horsepower", "weight", "price" };
+            var validAttributes = new[] { "speed", "attack", "defence", "health" };
             if (!validAttributes.Contains(attributeName?.ToLower()))
             {
                 return BadRequest("Invalid attribute selected");
