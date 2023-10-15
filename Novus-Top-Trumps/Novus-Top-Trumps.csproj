@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <Folder Include="Novus_Top_Trumps\" />
+    <Folder Include="wwwroot\images\Cars\" />
+    <Folder Include="wwwroot\images\Pokemon\" />
   </ItemGroup>
 
 </Project>
