@@ -11,8 +11,8 @@ using Novus_Top_Trumps.Data;
 namespace Novus_Top_Trumps.Migrations
 {
     [DbContext(typeof(CardsDBContext))]
-    [Migration("20231011155544_init")]
-    partial class init
+    [Migration("20231011155544_PokemonCards")]
+    partial class PokemonCards
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -22,35 +22,6 @@ namespace Novus_Top_Trumps.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("Novus_Top_Trumps.Models.CarsCards", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
-
-                    b.Property<int>("Horsepower")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Price")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Speed")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Weight")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("CarsCard");
-                });
 
             modelBuilder.Entity("Novus_Top_Trumps.Models.PokemonCards", b =>
                 {
