@@ -8,23 +8,7 @@ namespace Novus_Top_Trumps.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "CarsCard",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Speed = table.Column<int>(type: "int", nullable: false),
-                    Horsepower = table.Column<int>(type: "int", nullable: false),
-                    Weight = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CarsCard", x => x.ID);
-                });
-
+            
             migrationBuilder.CreateTable(
                 name: "PokemonCard",
                 columns: table => new
@@ -45,8 +29,7 @@ namespace Novus_Top_Trumps.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "CarsCard");
+
 
             migrationBuilder.DropTable(
                 name: "PokemonCard");
