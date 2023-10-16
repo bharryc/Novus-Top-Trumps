@@ -282,10 +282,81 @@ namespace Novus_Top_Trumps.Controllers
             return RedirectToAction("CompareCards", new { attributeName });
         }
 
-        public IActionResult SelectAttribute()
+        public async Task<IActionResult> SelectAttribute()
         {
-            return View();
+            if (TempData["Deck1"] == null || TempData["Deck2"] == null)
+            {
+                await InitializeDecks();
+            }
+
+            var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+            var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            var card1 = await _context.CarsCard.FindAsync(deck1.First());
+            var card2 = await _context.CarsCard.FindAsync(deck2.First());
+
+            var viewModel = new CardComparisonViewModel
+            {
+                Card1 = card1,
+                Card2 = card2
+            };
+
+            return View(viewModel);
         }
+
+        private async Task InitializeDecks()
+{
+    // Retrieve all card IDs
+    var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
+
+    // Check for insufficient cards
+    if (allCardIds.Count < 2)
+    {
+        throw new InvalidOperationException("Not enough cards to compare");
+    }
+
+    var rand = new Random();
+
+    // Shuffle all cards (Fisher-Yates shuffle)
+    for (int i = allCardIds.Count - 1; i > 0; i--)
+    {
+        int j = rand.Next(i + 1);
+        var temp = allCardIds[i];
+        allCardIds[i] = allCardIds[j];
+        allCardIds[j] = temp;
+    }
+
+    // Split into two decks
+    var halfIndex = allCardIds.Count / 2;
+    var deck1 = allCardIds.Take(halfIndex).ToList();
+    var deck2 = allCardIds.Skip(halfIndex).ToList();
+
+    TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
+    TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
+}
+
+
+        public async Task<IActionResult> DisplayTopCards()
+        {
+            InitializeDecks();
+
+            var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+            var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            var card1 = await _context.CarsCard.FindAsync(deck1.First());
+            var card2 = await _context.CarsCard.FindAsync(deck2.First());
+
+            var viewModel = new CardComparisonViewModel
+            {
+                Card1 = card1,
+                Card2 = card2,
+                // Populate other required properties if needed
+            };
+
+            return View("DisplayTopCardsView", viewModel);
+        }
+
+
 
     }
 }
