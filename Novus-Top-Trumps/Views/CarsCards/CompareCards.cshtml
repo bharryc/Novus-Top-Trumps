@@ -25,7 +25,7 @@ else
 
 }
 
-<h2 class="heading">Deck 1</h2>
+<h2 class="heading">Remaining Cards in Deck 1: @Model.Deck1.Count</h2>
 <table>
 
     <thead class="table-header">
@@ -54,7 +54,7 @@ else
     </tbody>
 </table>
 
-<h2 class="heading">Deck 2</h2>
+<h2 class="heading">Remaining Cards in Deck 2: @Model.Deck2.Count</h2>
 <table>
     <thead class="table-header">
         <tr>
@@ -80,4 +80,4 @@ else
         }
     </tbody>
 </table>
-<a asp-action="SelectAttribute" asp-controller="CarsCards" class="btn btn-primary">Start Comparing</a>
+<a asp-action="SelectAttribute" asp-controller="CarsCards" class="btn btn-primary">Select New Attribute</a>

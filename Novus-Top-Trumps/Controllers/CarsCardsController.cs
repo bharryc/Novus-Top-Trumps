@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
 
@@ -162,30 +163,49 @@ namespace Novus_Top_Trumps.Controllers
 
         public async Task<IActionResult> CompareCards(string attributeName)
         {
-            // Retrieve all card IDs
-            var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
+            List<int> deck1;
+            List<int> deck2;
 
-            // Check for insufficient cards
-            if (allCardIds.Count < 2)
+            // Check if decks exist in TempData
+            if (TempData["Deck1"] == null || TempData["Deck2"] == null)
             {
-                return View("Error", new ErrorViewModel { RequestId = "Not enough cards to compare" });
+                // Retrieve all card IDs
+                var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
+
+                // Check for insufficient cards
+                if (allCardIds.Count < 2)
+                {
+                    return View("Error", new ErrorViewModel { RequestId = "Not enough cards to compare" });
+                }
+
+                var rand = new Random();
+
+                // Shuffle all cards (Fisher-Yates shuffle)
+                for (int i = allCardIds.Count - 1; i > 0; i--)
+                {
+                    int j = rand.Next(i + 1);
+                    var temp = allCardIds[i];
+                    allCardIds[i] = allCardIds[j];
+                    allCardIds[j] = temp;
+                }
+
+                // Split into two decks
+                var halfIndex = allCardIds.Count / 2;
+                deck1 = allCardIds.Take(halfIndex).ToList();
+                deck2 = allCardIds.Skip(halfIndex).ToList();
+
+                // Store the decks in TempData
+                TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
+                TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
             }
-
-            var rand = new Random();
-
-            // Shuffle all cards (Fisher-Yates shuffle)
-            for (int i = allCardIds.Count - 1; i > 0; i--)
+            else
             {
-                int j = rand.Next(i + 1);
-                var temp = allCardIds[i];
-                allCardIds[i] = allCardIds[j];
-                allCardIds[j] = temp;
-            }
+                deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+                deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
 
-            // Split into two decks
-            var halfIndex = allCardIds.Count / 2;
-            var deck1 = allCardIds.Take(halfIndex).ToList();
-            var deck2 = allCardIds.Skip(halfIndex).ToList();
+                TempData.Keep("Deck1");
+                TempData.Keep("Deck2");
+            }
 
             // Default attribute if one is not provided
             attributeName = attributeName ?? "speed";
@@ -201,7 +221,6 @@ namespace Novus_Top_Trumps.Controllers
             int card1AttributeValue;
             int card2AttributeValue;
             bool? isCard1Winner = null;
-
             // Compare attributes
             switch (attributeName.ToLower())
             {
