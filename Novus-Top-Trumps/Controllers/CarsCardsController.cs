@@ -13,6 +13,11 @@ namespace Novus_Top_Trumps.Controllers
 {
     public class CarsCardsController : Controller
     {
+        private readonly string DECK1_KEY = "Deck1";
+        private readonly string DECK2_KEY = "Deck2";
+        private readonly string DEFAULT_ATTRIBUTE = "speed";
+        private readonly string ERROR_NOT_ENOUGH_CARDS = "Not enough cards to compare";
+        private readonly string ERROR_INVALID_ATTRIBUTE = "Invalid attribute name";
         private readonly CardsDBContext _context;
 
         public CarsCardsController(CardsDBContext context)
@@ -166,49 +171,20 @@ namespace Novus_Top_Trumps.Controllers
             List<int> deck1;
             List<int> deck2;
 
-            // Check if decks exist in TempData
-            if (TempData["Deck1"] == null || TempData["Deck2"] == null)
+            if (!DecksExistInTempData(out deck1, out deck2))
             {
-                // Retrieve all card IDs
-                var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
+                var allCardIds = await GetAllCardIds();
 
-                // Check for insufficient cards
                 if (allCardIds.Count < 2)
                 {
-                    return View("Error", new ErrorViewModel { RequestId = "Not enough cards to compare" });
+                    return View("Error", new ErrorViewModel { RequestId = ERROR_NOT_ENOUGH_CARDS });
                 }
 
-                var rand = new Random();
-
-                // Shuffle all cards (Fisher-Yates shuffle)
-                for (int i = allCardIds.Count - 1; i > 0; i--)
-                {
-                    int j = rand.Next(i + 1);
-                    var temp = allCardIds[i];
-                    allCardIds[i] = allCardIds[j];
-                    allCardIds[j] = temp;
-                }
-
-                // Split into two decks
-                var halfIndex = allCardIds.Count / 2;
-                deck1 = allCardIds.Take(halfIndex).ToList();
-                deck2 = allCardIds.Skip(halfIndex).ToList();
-
-                // Store the decks in TempData
-                TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
-                TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
-            }
-            else
-            {
-                deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
-                deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
-
-                TempData.Keep("Deck1");
-                TempData.Keep("Deck2");
+                ShuffleCards(allCardIds);
+                SplitCardsIntoDecks(allCardIds, out deck1, out deck2);
             }
 
-            // Default attribute if one is not provided
-            attributeName = attributeName ?? "speed";
+            attributeName = attributeName ?? DEFAULT_ATTRIBUTE;
 
             var card1 = await _context.CarsCard.FindAsync(deck1.First());
             var card2 = await _context.CarsCard.FindAsync(deck2.First());
@@ -218,11 +194,75 @@ namespace Novus_Top_Trumps.Controllers
                 return NotFound();
             }
 
-            int card1AttributeValue;
-            int card2AttributeValue;
-            bool? isCard1Winner = null;
-            // Compare attributes
-            switch (attributeName.ToLower())
+            if (!TryCompareAttributes(attributeName.ToLower(), card1, card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner))
+            {
+                return BadRequest(ERROR_INVALID_ATTRIBUTE);
+            }
+
+            var viewModel = new CardComparisonViewModel
+            {
+                Card1 = card1,
+                Card2 = card2,
+                Deck1 = await _context.CarsCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
+                Deck2 = await _context.CarsCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
+                AttributeName = attributeName,
+                IsCard1Winner = isCard1Winner,
+                Card1AttributeValue = card1AttributeValue,
+                Card2AttributeValue = card2AttributeValue
+            };
+
+            return View(viewModel);
+        }
+        private bool DecksExistInTempData(out List<int> deck1, out List<int> deck2)
+        {
+            if (TempData[DECK1_KEY] == null || TempData[DECK2_KEY] == null)
+            {
+                deck1 = null;
+                deck2 = null;
+                return false;
+            }
+
+            deck1 = JsonConvert.DeserializeObject<List<int>>(TempData[DECK1_KEY].ToString());
+            deck2 = JsonConvert.DeserializeObject<List<int>>(TempData[DECK2_KEY].ToString());
+
+            TempData.Keep(DECK1_KEY);
+            TempData.Keep(DECK2_KEY);
+            return true;
+        }
+        private async Task<List<int>> GetAllCardIds()
+        {
+            return await _context.CarsCard.Select(card => card.ID).ToListAsync();
+        }
+
+        private void ShuffleCards(List<int> cardIds)
+        {
+            var rand = new Random();
+            for (int i = cardIds.Count - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                var temp = cardIds[i];
+                cardIds[i] = cardIds[j];
+                cardIds[j] = temp;
+            }
+        }
+
+        private void SplitCardsIntoDecks(List<int> allCardIds, out List<int> deck1, out List<int> deck2)
+        {
+            var halfIndex = allCardIds.Count / 2;
+            deck1 = allCardIds.Take(halfIndex).ToList();
+            deck2 = allCardIds.Skip(halfIndex).ToList();
+
+            TempData[DECK1_KEY] = JsonConvert.SerializeObject(deck1);
+            TempData[DECK2_KEY] = JsonConvert.SerializeObject(deck2);
+        }
+
+        private bool TryCompareAttributes(string attributeName, CarsCards card1, CarsCards card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner)
+        {
+            card1AttributeValue = 0;
+            card2AttributeValue = 0;
+            isCard1Winner = null;
+
+            switch (attributeName)
             {
                 case "speed":
                     card1AttributeValue = card1.Speed;
@@ -245,22 +285,10 @@ namespace Novus_Top_Trumps.Controllers
                     isCard1Winner = card1.Price > card2.Price;
                     break;
                 default:
-                    return BadRequest("Invalid attribute name");
+                    return false;
             }
 
-            var viewModel = new CardComparisonViewModel
-            {
-                Card1 = card1,
-                Card2 = card2,
-                Deck1 = await _context.CarsCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
-                Deck2 = await _context.CarsCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
-                AttributeName = attributeName,
-                IsCard1Winner = isCard1Winner,
-                Card1AttributeValue = card1AttributeValue,
-                Card2AttributeValue = card2AttributeValue
-            };
-
-            return View(viewModel);
+            return true;
         }
 
 
@@ -301,6 +329,9 @@ namespace Novus_Top_Trumps.Controllers
                 Card2 = card2
             };
 
+            TempData.Keep("Deck1");
+            TempData.Keep("Deck2");
+
             return View(viewModel);
         }
 
@@ -338,7 +369,7 @@ namespace Novus_Top_Trumps.Controllers
 
         public async Task<IActionResult> DisplayTopCards()
         {
-            InitializeDecks();
+           await InitializeDecks();
 
             var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
             var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
