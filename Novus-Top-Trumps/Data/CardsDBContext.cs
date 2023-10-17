@@ -15,6 +15,6 @@ namespace Novus_Top_Trumps.Data
         }
 
         public DbSet<Novus_Top_Trumps.Models.CarsCards> CarsCard { get; set; } = default!;
-        public DbSet<Novus_Top_Trumps.Models.PokemonCards> PokemonCard { get; set; }
+        public DbSet<Novus_Top_Trumps.Models.PokemonCards> PokemonCard { get; set; } = default!;
     }
 }
