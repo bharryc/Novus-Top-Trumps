@@ -336,35 +336,35 @@ namespace Novus_Top_Trumps.Controllers
         }
 
         private async Task InitializeDecks()
-{
-    // Retrieve all card IDs
-    var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
+        {
+            // Retrieve all card IDs
+            var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
 
-    // Check for insufficient cards
-    if (allCardIds.Count < 2)
-    {
-        throw new InvalidOperationException("Not enough cards to compare");
-    }
+            // Check for insufficient cards
+            if (allCardIds.Count < 2)
+            {
+                throw new InvalidOperationException("Not enough cards to compare");
+            }
 
-    var rand = new Random();
+            var rand = new Random();
 
-    // Shuffle all cards (Fisher-Yates shuffle)
-    for (int i = allCardIds.Count - 1; i > 0; i--)
-    {
-        int j = rand.Next(i + 1);
-        var temp = allCardIds[i];
-        allCardIds[i] = allCardIds[j];
-        allCardIds[j] = temp;
-    }
+            // Shuffle all cards (Fisher-Yates shuffle)
+            for (int i = allCardIds.Count - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                var temp = allCardIds[i];
+                allCardIds[i] = allCardIds[j];
+                allCardIds[j] = temp;
+            }
 
-    // Split into two decks
-    var halfIndex = allCardIds.Count / 2;
-    var deck1 = allCardIds.Take(halfIndex).ToList();
-    var deck2 = allCardIds.Skip(halfIndex).ToList();
+            // Split into two decks
+            var halfIndex = allCardIds.Count / 2;
+            var deck1 = allCardIds.Take(halfIndex).ToList();
+            var deck2 = allCardIds.Skip(halfIndex).ToList();
 
-    TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
-    TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
-}
+            TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
+            TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
+        }
 
 
         public async Task<IActionResult> DisplayTopCards()
@@ -387,6 +387,94 @@ namespace Novus_Top_Trumps.Controllers
             return View("DisplayTopCardsView", viewModel);
         }
 
+        public async Task<IActionResult> PickingNextCard(string difficulty)
+        {
+            // Get the id's for the decks
+            var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+            var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            // Get the current deck of the AI
+            var currentCard = await _context.CarsCard.FindAsync(deck2.First());
+
+            // Create array for calculating attribute win rate
+            float[] percentToWin = { 0, 0, 0, 0 };
+
+            // Check how many cards each attribute beats
+            foreach(int i in deck1)
+            {
+                var card = await _context.CarsCard.FindAsync(i);
+                if (currentCard.Speed > card.Speed)
+                    percentToWin[0]++;
+                if (currentCard.Horsepower > card.Horsepower)
+                    percentToWin[1]++;
+                if (currentCard.Weight > card.Weight)
+                    percentToWin[2]++;
+                if (currentCard.Price > card.Price)
+                    percentToWin[3]++;
+            }
+
+            // Calculate the % of winning in each attribute
+            for (int i = 0; i < percentToWin.Length; i++) 
+            {
+                percentToWin[i] = percentToWin[i] / deck1.Count;
+            }
+
+            switch (difficulty.ToLower()) 
+            {
+                case "easy":
+                    var rand = new Random();
+                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(rand.Next(0, 3)));
+                    break;
+
+                case "medium":
+                    var rands = new Random();
+                    int[] temps = { 0, 0 };
+                    for (int i = 0; i < percentToWin.Length; i++)
+                    {
+                        if (percentToWin[i] > temps[0])
+                            temps[0] = i;
+                        else if (percentToWin[i] > temps[1])
+                            temps[1] = i;
+                    }
+                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(temps[rands.Next(0, 1)]));
+                    break;
+
+                case "hard":
+                    int temp = 0;
+                    for (int i = 0; i < percentToWin.Length; i++)
+                    {
+                        if (percentToWin[i] > temp)
+                            temp = i;
+                    }
+                    ;
+                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(temp));
+
+                default:
+                    return BadRequest("Incorrect AI difficulty used.");
+            }
+
+        }
+
+        public string NumToAttribute(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return "speed";
+
+                case 1:
+                    return "horsepower";
+
+                case 2:
+                    return "weight";
+
+                case 3:
+                    return "price";
+
+                default:
+                    return null;
+            }
+        }
 
 
     }
