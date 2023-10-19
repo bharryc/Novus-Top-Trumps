@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
 
@@ -262,6 +263,41 @@ namespace Novus_Top_Trumps.Controllers
         {
             return View();
         }
+
+
+        public async Task InitializeDecks()
+        {
+            // Retrieve all card IDs
+            var allCardIds = await _context.PokemonCard.Select(card => card.ID).ToListAsync();
+
+            // Check for insufficient cards
+            if (allCardIds.Count < 2)
+            {
+                throw new InvalidOperationException("Not enough cards to compare");
+            }
+
+            var rand = new Random();
+
+            // Shuffle all cards (Fisher-Yates shuffle)
+            for (int i = allCardIds.Count - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                var temp = allCardIds[i];
+                allCardIds[i] = allCardIds[j];
+                allCardIds[j] = temp;
+            }
+
+            // Split into two decks
+            var halfIndex = allCardIds.Count / 2;
+            var deck1 = allCardIds.Take(halfIndex).ToList();
+            var deck2 = allCardIds.Skip(halfIndex).ToList();
+
+            TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
+            TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
+        }
+
+
+
 
     }
 }

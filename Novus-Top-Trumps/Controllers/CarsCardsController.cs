@@ -199,6 +199,25 @@ namespace Novus_Top_Trumps.Controllers
                 return BadRequest(ERROR_INVALID_ATTRIBUTE);
             }
 
+            if (isCard1Winner == true)
+            {
+                deck2.Remove(card2.ID);
+                deck1.Add(card2.ID);
+            }
+            else if (isCard1Winner == false)
+            {
+                deck1.Remove(card1.ID);
+                deck2.Add(card1.ID);
+            }
+
+            TempData[DECK1_KEY] = JsonConvert.SerializeObject(deck1);
+            TempData[DECK2_KEY] = JsonConvert.SerializeObject(deck2);
+
+            if (IsGameOver(deck1))
+            {
+                return RedirectToAction("Result", new { resultMessage = deck1.Count == 0 ? "You won!" : "You lost!" });
+            }
+
             var viewModel = new CardComparisonViewModel
             {
                 Card1 = card1,
@@ -300,6 +319,7 @@ namespace Novus_Top_Trumps.Controllers
         [HttpPost]
         public IActionResult SelectAttributeForComparison(string attributeName)
         {
+
             // Simple validation: check if attributeName is one of the allowed values
             var validAttributes = new[] { "speed", "horsepower", "weight", "price" };
             if (!validAttributes.Contains(attributeName?.ToLower()))
@@ -335,36 +355,36 @@ namespace Novus_Top_Trumps.Controllers
             return View(viewModel);
         }
 
-        private async Task InitializeDecks()
-{
-    // Retrieve all card IDs
-    var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
+        public async Task InitializeDecks()
+        {
+            // Retrieve all card IDs
+            var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
 
-    // Check for insufficient cards
-    if (allCardIds.Count < 2)
-    {
-        throw new InvalidOperationException("Not enough cards to compare");
-    }
+            // Check for insufficient cards
+            if (allCardIds.Count < 2)
+            {
+                throw new InvalidOperationException("Not enough cards to compare");
+            }
 
-    var rand = new Random();
+            var rand = new Random();
 
-    // Shuffle all cards (Fisher-Yates shuffle)
-    for (int i = allCardIds.Count - 1; i > 0; i--)
-    {
-        int j = rand.Next(i + 1);
-        var temp = allCardIds[i];
-        allCardIds[i] = allCardIds[j];
-        allCardIds[j] = temp;
-    }
+            // Shuffle all cards (Fisher-Yates shuffle)
+            for (int i = allCardIds.Count - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                var temp = allCardIds[i];
+                allCardIds[i] = allCardIds[j];
+                allCardIds[j] = temp;
+            }
 
-    // Split into two decks
-    var halfIndex = allCardIds.Count / 2;
-    var deck1 = allCardIds.Take(halfIndex).ToList();
-    var deck2 = allCardIds.Skip(halfIndex).ToList();
+            // Split into two decks
+            var halfIndex = allCardIds.Count / 2;
+            var deck1 = allCardIds.Take(halfIndex).ToList();
+            var deck2 = allCardIds.Skip(halfIndex).ToList();
 
-    TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
-    TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
-}
+            TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
+            TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
+        }
 
 
         public async Task<IActionResult> DisplayTopCards()
@@ -387,7 +407,14 @@ namespace Novus_Top_Trumps.Controllers
             return View("DisplayTopCardsView", viewModel);
         }
 
+        private bool IsGameOver(List<int> deck)
+        {
+            return deck.Count == 0 || deck.Count == 32;
+        }
 
-
+        public IActionResult GameResult(String result)
+        {
+            return View(result);
+        }
     }
 }

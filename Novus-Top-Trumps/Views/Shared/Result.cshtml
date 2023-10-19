@@ -1,0 +1,20 @@
+﻿@model string
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Result</title>
+</head>
+<body>
+    <h2>Game Result</h2>
+
+    @if (Model == "Winner")
+    {
+        <p>Congratulations! You won the game.</p>
+    }
+    else if (Model == "Loser")
+    {
+        <p>AI wins. Better luck next time!</p>
+    }
+</body>
+</html>
