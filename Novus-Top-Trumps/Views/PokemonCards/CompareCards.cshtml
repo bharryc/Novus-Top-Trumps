@@ -4,6 +4,70 @@
     ViewData["Title"] = "CompareCards";
 }
 
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        padding: 20px;
+    }
+
+    .heading {
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        color: #007bff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+
+    .table-header th {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .table-row {
+        background-color: #fff;
+    }
+
+        .table-row:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .table-row td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+    .winner {
+        color: #28a745;
+    }
+
+    .tie {
+        color: #ff6347;
+    }
+
+    .btn {
+        display: inline-block;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+</style>
+
 <h2 class="heading">Card Comparison</h2>
 
 <p>Comparing <strong>@Model.AttributeName</strong> between:</p>
@@ -17,17 +81,14 @@
 @if (Model.IsCard1Winner.HasValue)
 {
     <h2 class="heading winner">Winner: @(Model.IsCard1Winner.Value ? Model.Card1.Name : Model.Card2.Name)</h2>
-
 }
 else
 {
     <h2 class="heading tie">It's a Tie!</h2>
-
 }
 
-<h2 class="heading">Deck 1</h2>
+<h2 class="heading">Remaining Cards in Deck 1: @Model.Deck1.Count</h2>
 <table>
-
     <thead class="table-header">
         <tr>
             <th>ID</th>
@@ -42,7 +103,6 @@ else
         @foreach (var card in Model.Deck1)
         {
             <tr class="table-row">
-
                 <td>@card.ID</td>
                 <td>@card.Name</td>
                 <td>@card.Speed</td>
@@ -54,7 +114,7 @@ else
     </tbody>
 </table>
 
-<h2 class="heading">Deck 2</h2>
+<h2 class="heading">Remaining Cards in Deck 2: @Model.Deck2.Count</h2>
 <table>
     <thead class="table-header">
         <tr>
@@ -80,4 +140,4 @@ else
         }
     </tbody>
 </table>
-<a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Start Comparing</a>
+<a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Select New Attribute</a>
