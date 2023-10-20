@@ -213,12 +213,14 @@ namespace Novus_Top_Trumps.Controllers
             {
                 deck2.Remove(card2.ID);
                 deck1.Remove(card1.ID);
+                deck1.Add(card1.ID);
                 deck1.Add(card2.ID);
             }
             else if (isCard1Winner == false)
             {
                 deck1.Remove(card1.ID);
                 deck2.Remove(card2.ID);
+                deck2.Add(card2.ID);
                 deck2.Add(card1.ID);
             }
 

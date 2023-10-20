@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Novus_Top_Trumps.Data;
 
@@ -10,9 +11,10 @@ using Novus_Top_Trumps.Data;
 namespace Novus_Top_Trumps.Migrations
 {
     [DbContext(typeof(CardsDBContext))]
-    partial class CardsDBContextModelSnapshot : ModelSnapshot
+    [Migration("20231020134839_UFCCards")]
+    partial class UFCCards
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,35 +50,6 @@ namespace Novus_Top_Trumps.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("CarsCard");
-                });
-
-            modelBuilder.Entity("Novus_Top_Trumps.Models.HeroCards", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
-
-                    b.Property<int>("Agility")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Strength")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Technology")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Willpower")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("HeroCard");
                 });
 
             modelBuilder.Entity("Novus_Top_Trumps.Models.PokemonCards", b =>

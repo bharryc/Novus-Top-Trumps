@@ -1,110 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Composition;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
 
-
 namespace Novus_Top_Trumps.Controllers
 {
-    public class PokemonCardsController : Controller
+    public class HeroCardsController : Controller
     {
         private readonly string DECK1_KEY = "Deck1";
         private readonly string DECK2_KEY = "Deck2";
-        private readonly string DEFAULT_ATTRIBUTE = "speed";
+        private readonly string DEFAULT_ATTRIBUTE = "strength";
         private readonly string ERROR_NOT_ENOUGH_CARDS = "Not enough cards to compare";
         private readonly string ERROR_INVALID_ATTRIBUTE = "Invalid attribute name";
         private readonly CardsDBContext _context;
         private string difficulty = "easy";
 
-        public PokemonCardsController(CardsDBContext context)
+        public HeroCardsController(CardsDBContext context)
         {
             _context = context;
         }
 
-        public IActionResult PokemonCards()
+        public IActionResult HeroCards()
         {
             return View();
         }
 
-        // GET: PokemonCards
+        // GET: HeroCards
         public async Task<IActionResult> Index()
         {
-            return _context.PokemonCard != null ?
-                        View(await _context.PokemonCard.ToListAsync()) :
-                        Problem("Entity set 'CardsDBContext.PokemonCard'  is null.");
+            return _context.HeroCard != null ?
+                        View(await _context.HeroCard.ToListAsync()) :
+                        Problem("Entity set 'CardsDBContext.HeroCard'  is null.");
         }
 
-        // GET: PokemonCards/Details/5
+        // GET: HeroCards/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.PokemonCard == null)
+            if (id == null || _context.HeroCard == null)
             {
                 return NotFound();
             }
 
-            var PokemonCard = await _context.PokemonCard
+            var HeroCard = await _context.HeroCard
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (PokemonCard == null)
+            if (HeroCard == null)
             {
                 return NotFound();
             }
 
-            return View(PokemonCard);
+            return View(HeroCard);
         }
 
-        // GET: PokemonCards/Create
+        // GET: HeroCards/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: PokemonCards/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // POST: HeroCards/Create
+        // To protect from overposting Technologys, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Speed,Attack,Defence,Health")] PokemonCards PokemonCard)
+        public async Task<IActionResult> Create([Bind("ID,Name,Strength,Technology,Willpower,Agility")] HeroCards HeroCard)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(PokemonCard);
+                _context.Add(HeroCard);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(PokemonCard);
+            return View(HeroCard);
         }
 
-        // GET: PokemonCards/Edit/5
+        // GET: HeroCards/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.PokemonCard == null)
+            if (id == null || _context.HeroCard == null)
             {
                 return NotFound();
             }
 
-            var PokemonCard = await _context.PokemonCard.FindAsync(id);
-            if (PokemonCard == null)
+            var HeroCard = await _context.HeroCard.FindAsync(id);
+            if (HeroCard == null)
             {
                 return NotFound();
             }
-            return View(PokemonCard);
+            return View(HeroCard);
         }
 
-        // POST: PokemonCards/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // POST: HeroCards/Edit/5
+        // To protect from overposting Technologys, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Speed,Attack,Defence,Health")] PokemonCards PokemonCard)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Strength,Technology,Willpower,Agility")] HeroCards HeroCard)
         {
-            if (id != PokemonCard.ID)
+            if (id != HeroCard.ID)
             {
                 return NotFound();
             }
@@ -113,12 +107,12 @@ namespace Novus_Top_Trumps.Controllers
             {
                 try
                 {
-                    _context.Update(PokemonCard);
+                    _context.Update(HeroCard);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PokemonCardExists(PokemonCard.ID))
+                    if (!HeroCardExists(HeroCard.ID))
                     {
                         return NotFound();
                     }
@@ -129,40 +123,40 @@ namespace Novus_Top_Trumps.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(PokemonCard);
+            return View(HeroCard);
         }
 
-        // GET: PokemonCards/Delete/5
+        // GET: HeroCards/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.PokemonCard == null)
+            if (id == null || _context.HeroCard == null)
             {
                 return NotFound();
             }
 
-            var PokemonCard = await _context.PokemonCard
+            var HeroCard = await _context.HeroCard
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (PokemonCard == null)
+            if (HeroCard == null)
             {
                 return NotFound();
             }
 
-            return View(PokemonCard);
+            return View(HeroCard);
         }
 
-        // POST: PokemonCards/Delete/5
+        // POST: HeroCards/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.PokemonCard == null)
+            if (_context.HeroCard == null)
             {
-                return Problem("Entity set 'CardsDBContext.PokemonCard'  is null.");
+                return Problem("Entity set 'CardsDBContext.HeroCard'  is null.");
             }
-            var PokemonCard = await _context.PokemonCard.FindAsync(id);
-            if (PokemonCard != null)
+            var HeroCard = await _context.HeroCard.FindAsync(id);
+            if (HeroCard != null)
             {
-                _context.PokemonCard.Remove(PokemonCard);
+                _context.HeroCard.Remove(HeroCard);
             }
 
             await _context.SaveChangesAsync();
@@ -189,8 +183,8 @@ namespace Novus_Top_Trumps.Controllers
 
             attributeName = attributeName ?? DEFAULT_ATTRIBUTE;
 
-            var card1 = await _context.PokemonCard.FindAsync(deck1.First());
-            var card2 = await _context.PokemonCard.FindAsync(deck2.First());
+            var card1 = await _context.HeroCard.FindAsync(deck1.First());
+            var card2 = await _context.HeroCard.FindAsync(deck2.First());
 
             if (card1 == null || card2 == null)
             {
@@ -228,12 +222,12 @@ namespace Novus_Top_Trumps.Controllers
             }
 
 
-            var viewModel = new PokemonComparisonViewModel
+            var viewModel = new HeroComparisonViewModel
             {
                 Card1 = card1,
                 Card2 = card2,
-                Deck1 = await _context.PokemonCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
-                Deck2 = await _context.PokemonCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
+                Deck1 = await _context.HeroCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
+                Deck2 = await _context.HeroCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
                 AttributeName = attributeName,
                 IsCard1Winner = isCard1Winner,
                 Card1AttributeValue = card1AttributeValue,
@@ -260,7 +254,7 @@ namespace Novus_Top_Trumps.Controllers
         }
         private async Task<List<int>> GetAllCardIds()
         {
-            return await _context.PokemonCard.Select(card => card.ID).ToListAsync();
+            return await _context.HeroCard.Select(card => card.ID).ToListAsync();
         }
 
         private void ShuffleCards(List<int> cardIds)
@@ -285,7 +279,7 @@ namespace Novus_Top_Trumps.Controllers
             TempData[DECK2_KEY] = JsonConvert.SerializeObject(deck2);
         }
 
-        private bool TryCompareAttributes(string attributeName, PokemonCards card1, PokemonCards card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner)
+        private bool TryCompareAttributes(string attributeName, HeroCards card1, HeroCards card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner)
         {
             card1AttributeValue = 0;
             card2AttributeValue = 0;
@@ -293,25 +287,25 @@ namespace Novus_Top_Trumps.Controllers
 
             switch (attributeName)
             {
-                case "speed":
-                    card1AttributeValue = card1.Speed;
-                    card2AttributeValue = card2.Speed;
-                    isCard1Winner = card1.Speed > card2.Speed;
+                case "strength":
+                    card1AttributeValue = card1.Strength;
+                    card2AttributeValue = card2.Strength;
+                    isCard1Winner = card1.Strength > card2.Strength;
                     break;
-                case "attack":
-                    card1AttributeValue = card1.Attack;
-                    card2AttributeValue = card2.Attack;
-                    isCard1Winner = card1.Attack > card2.Attack;
+                case "technology":
+                    card1AttributeValue = card1.Technology;
+                    card2AttributeValue = card2.Technology;
+                    isCard1Winner = card1.Technology > card2.Technology;
                     break;
-                case "defence":
-                    card1AttributeValue = card1.Defence;
-                    card2AttributeValue = card2.Defence;
-                    isCard1Winner = card1.Defence > card2.Defence;
+                case "willpower":
+                    card1AttributeValue = card1.Willpower;
+                    card2AttributeValue = card2.Willpower;
+                    isCard1Winner = card1.Willpower > card2.Willpower;
                     break;
-                case "health":
-                    card1AttributeValue = card1.Health;
-                    card2AttributeValue = card2.Health;
-                    isCard1Winner = card1.Health > card2.Health;
+                case "agility":
+                    card1AttributeValue = card1.Agility;
+                    card2AttributeValue = card2.Agility;
+                    isCard1Winner = card1.Agility > card2.Agility;
                     break;
                 default:
                     return false;
@@ -321,9 +315,9 @@ namespace Novus_Top_Trumps.Controllers
         }
 
 
-        private bool PokemonCardExists(int id)
+        private bool HeroCardExists(int id)
         {
-            return (_context.PokemonCard?.Any(e => e.ID == id)).GetValueOrDefault();
+            return (_context.HeroCard?.Any(e => e.ID == id)).GetValueOrDefault();
         }
 
         [HttpPost]
@@ -331,7 +325,7 @@ namespace Novus_Top_Trumps.Controllers
         {
 
             // Simple validation: check if attributeName is one of the allowed values
-            var validAttributes = new[] { "speed", "attack", "defence", "health" };
+            var validAttributes = new[] { "strength", "technology", "willpower", "agility" };
             if (!validAttributes.Contains(attributeName?.ToLower()))
             {
                 return BadRequest("Invalid attribute selected");
@@ -358,10 +352,10 @@ namespace Novus_Top_Trumps.Controllers
                 deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
             }
 
-            var card1 = await _context.PokemonCard.FindAsync(deck1.First());
-            var card2 = await _context.PokemonCard.FindAsync(deck2.First());
+            var card1 = await _context.HeroCard.FindAsync(deck1.First());
+            var card2 = await _context.HeroCard.FindAsync(deck2.First());
 
-            var viewModel = new PokemonComparisonViewModel
+            var viewModel = new HeroComparisonViewModel
             {
                 Card1 = card1,
                 Card2 = card2
@@ -376,7 +370,7 @@ namespace Novus_Top_Trumps.Controllers
         public async Task InitializeDecks()
         {
             // Retrieve all card IDs
-            var allCardIds = await _context.PokemonCard.Select(card => card.ID).ToListAsync();
+            var allCardIds = await _context.HeroCard.Select(card => card.ID).ToListAsync();
 
             // Check for insufficient cards
             if (allCardIds.Count < 2)
@@ -412,10 +406,10 @@ namespace Novus_Top_Trumps.Controllers
             var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
             var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
 
-            var card1 = await _context.PokemonCard.FindAsync(deck1.First());
-            var card2 = await _context.PokemonCard.FindAsync(deck2.First());
+            var card1 = await _context.HeroCard.FindAsync(deck1.First());
+            var card2 = await _context.HeroCard.FindAsync(deck2.First());
 
-            var viewModel = new PokemonComparisonViewModel
+            var viewModel = new HeroComparisonViewModel
             {
                 Card1 = card1,
                 Card2 = card2,
@@ -434,7 +428,7 @@ namespace Novus_Top_Trumps.Controllers
             difficulty = TempData["Difficulty"] as string;
 
             // Get the current deck of the AI
-            var currentCard = await _context.PokemonCard.FindAsync(deck2.First());
+            var currentCard = await _context.HeroCard.FindAsync(deck2.First());
 
             // Create array for calculating attribute win rate
             float[] percentToWin = { 0, 0, 0, 0 };
@@ -442,14 +436,14 @@ namespace Novus_Top_Trumps.Controllers
             // Check how many cards each attribute beats
             foreach (int i in deck1)
             {
-                var card = await _context.PokemonCard.FindAsync(i);
-                if (currentCard.Speed > card.Speed)
+                var card = await _context.HeroCard.FindAsync(i);
+                if (currentCard.Strength > card.Strength)
                     percentToWin[0]++;
-                if (currentCard.Attack > card.Attack)
+                if (currentCard.Technology > card.Technology)
                     percentToWin[1]++;
-                if (currentCard.Defence > card.Defence)
+                if (currentCard.Willpower > card.Willpower)
                     percentToWin[2]++;
-                if (currentCard.Health > card.Health)
+                if (currentCard.Agility > card.Agility)
                     percentToWin[3]++;
             }
 
@@ -500,16 +494,16 @@ namespace Novus_Top_Trumps.Controllers
             switch (i)
             {
                 case 0:
-                    return "speed";
+                    return "Strength";
 
                 case 1:
-                    return "attack";
+                    return "Technology";
 
                 case 2:
-                    return "defence";
+                    return "Willpower";
 
                 case 3:
-                    return "health";
+                    return "Agility";
 
                 default:
                     return null;
@@ -536,6 +530,5 @@ namespace Novus_Top_Trumps.Controllers
             await InitializeDecks();
             return RedirectToAction("SomeStartingAction"); // Redirect to the starting point of the game
         }
-
     }
 }

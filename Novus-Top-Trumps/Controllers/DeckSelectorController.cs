@@ -20,11 +20,15 @@ namespace Novus_Top_Trumps.Controllers
         public IActionResult Index(string difficulty)
         {
             TempData["Difficulty"] = difficulty;
+            TempData["Deck1"] = null;
+            TempData["Deck2"] = null;
 
             List<CustomItemModel> customItems = new List<CustomItemModel>
             {
                 new CustomItemModel { Link = "../CarsCards/SelectAttribute", Name = "Cars" },
-                new CustomItemModel { Link = "../PokemonCards/SelectAttribute", Name = "Pokemon" }
+                new CustomItemModel { Link = "../PokemonCards/SelectAttribute", Name = "Pokemon" },
+                new CustomItemModel { Link = "../UFCCards/SelectAttribute", Name = "UFC Players" },
+                new CustomItemModel { Link = "../HeroCards/SelectAttribute", Name = "Heroes" }
             };
             
             ViewBag.CustomItems = customItems;

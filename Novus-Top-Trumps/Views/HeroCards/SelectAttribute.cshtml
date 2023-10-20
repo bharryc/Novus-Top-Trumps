@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Select Attribute";
+}
+
+<h2>Select an Attribute for Comparison</h2>
+
+<h3>@Model.Card1.Name</h3>
+<ul>
+    <li>Strength: @Model.Card1.Strength</li>
+    <li>Technology: @Model.Card1.Technology</li>
+    <li>Willpower: @Model.Card1.Willpower</li>
+    <li>Agility: @Model.Card1.Agility</li>
+</ul>
+
+<form asp-action="SelectAttributeForComparison" method="post">
+    <div class="form-group">
+        <label for="attributeName">Attribute:</label>
+        <select id="attributeName" name="attributeName" class="form-control" required>
+            <option value="strength">Strength</option>
+            <option value="technology">Technology</option>
+            <option value="willpower">Willpower</option>
+            <option value="agility">Agility</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Compare Cards</button>
+</form>

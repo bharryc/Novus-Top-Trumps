@@ -77,4 +77,20 @@ void PopulateCardsDb(IApplicationBuilder app)
         }
         dbContext.SaveChanges();
     }
+    if (!dbContext.UFCCard.Any())
+    {
+        foreach (var card in UFCCardData.UFCDeck)
+        {
+            dbContext.UFCCard.Add(card);
+        }
+        dbContext.SaveChanges();
+    }
+    if (!dbContext.HeroCard.Any())
+    {
+        foreach (var card in HeroCardData.HeroDeck)
+        {
+            dbContext.HeroCard.Add(card);
+        }
+        dbContext.SaveChanges();
+    }
 }

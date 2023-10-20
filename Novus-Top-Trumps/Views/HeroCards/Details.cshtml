@@ -1,4 +1,4 @@
-﻿@model Novus_Top_Trumps.Models.PokemonCards
+﻿@model Novus_Top_Trumps.Models.HeroCards
 
 @{
     ViewData["Title"] = "Details";
@@ -7,7 +7,7 @@
 <h1>Details</h1>
 
 <div>
-    <h4>CarsCard</h4>
+    <h4>HeroCards</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -17,28 +17,28 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Speed)
+            @Html.DisplayNameFor(model => model.Strength)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Speed)
+            @Html.DisplayFor(model => model.Strength)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Attack)
+            @Html.DisplayNameFor(model => model.Technology)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Attack)
+            @Html.DisplayFor(model => model.Technology)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Defence)
+            @Html.DisplayNameFor(model => model.Willpower)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Defence)
+            @Html.DisplayFor(model => model.Willpower)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Health)
+            @Html.DisplayNameFor(model => model.Agility)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Health)
+            @Html.DisplayFor(model => model.Agility)
         </dd>
     </dl>
 </div>
