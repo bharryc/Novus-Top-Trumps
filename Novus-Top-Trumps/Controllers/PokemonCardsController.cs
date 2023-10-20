@@ -21,6 +21,7 @@ namespace Novus_Top_Trumps.Controllers
         private readonly string ERROR_NOT_ENOUGH_CARDS = "Not enough cards to compare";
         private readonly string ERROR_INVALID_ATTRIBUTE = "Invalid attribute name";
         private readonly CardsDBContext _context;
+        private string difficulty = "easy";
 
         public PokemonCardsController(CardsDBContext context)
         {
@@ -418,6 +419,97 @@ namespace Novus_Top_Trumps.Controllers
             };
 
             return View("DisplayTopCardsView", viewModel);
+        }
+
+        public async Task<IActionResult> PickingNextCard()
+        {
+            // Get the id's for the decks
+            var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+            var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            difficulty = TempData["Difficulty"] as string;
+
+            // Get the current deck of the AI
+            var currentCard = await _context.CarsCard.FindAsync(deck2.First());
+
+            // Create array for calculating attribute win rate
+            float[] percentToWin = { 0, 0, 0, 0 };
+
+            // Check how many cards each attribute beats
+            foreach (int i in deck1)
+            {
+                var card = await _context.CarsCard.FindAsync(i);
+                if (currentCard.Speed > card.Speed)
+                    percentToWin[0]++;
+                if (currentCard.Horsepower > card.Horsepower)
+                    percentToWin[1]++;
+                if (currentCard.Weight > card.Weight)
+                    percentToWin[2]++;
+                if (currentCard.Price > card.Price)
+                    percentToWin[3]++;
+            }
+
+            // Calculate the % of winning in each attribute
+            for (int i = 0; i < percentToWin.Length; i++)
+            {
+                percentToWin[i] = percentToWin[i] / deck1.Count;
+            }
+
+            switch (difficulty.ToLower())
+            {
+                case "easy":
+                    var rand = new Random();
+                    return SelectAttributeForComparison(NumToAttribute(rand.Next(0, 3)));
+                    break;
+
+                case "medium":
+                    var rands = new Random();
+                    int[] temps = { 0, 0 };
+                    for (int i = 0; i < percentToWin.Length; i++)
+                    {
+                        if (percentToWin[i] > temps[0])
+                            temps[0] = i;
+                        else if (percentToWin[i] > temps[1])
+                            temps[1] = i;
+                    }
+                    return SelectAttributeForComparison(NumToAttribute(temps[rands.Next(0, 1)]));
+                    break;
+
+                case "hard":
+                    int temp = 0;
+                    for (int i = 0; i < percentToWin.Length; i++)
+                    {
+                        if (percentToWin[i] > temp)
+                            temp = i;
+                    }
+                    ;
+                    return SelectAttributeForComparison(NumToAttribute(temp));
+
+                default:
+                    return BadRequest("Incorrect AI difficulty used.");
+            }
+
+        }
+
+        public string NumToAttribute(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return "speed";
+
+                case 1:
+                    return "attack";
+
+                case 2:
+                    return "defence";
+
+                case 3:
+                    return "health";
+
+                default:
+                    return null;
+            }
         }
 
         private GameOverResult IsGameOver(List<int> deck)

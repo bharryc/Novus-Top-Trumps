@@ -140,4 +140,18 @@ else
         }
     </tbody>
 </table>
-<a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Select New Attribute</a>
+@if (Model.IsCard1Winner.HasValue)
+{
+    @if (Model.IsCard1Winner.Value)
+    {
+        <a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Next Round</a>
+    }
+    else
+    {
+        <a asp-action="PickingNextCard" asp-controller="PokemonCards" class="btn btn-primary">Next Round</a>
+    }
+}
+else
+{
+    <a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Next Round</a>
+}
