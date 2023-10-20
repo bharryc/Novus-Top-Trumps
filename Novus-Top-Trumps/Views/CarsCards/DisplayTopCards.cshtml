@@ -1,0 +1,32 @@
+﻿@model Novus_Top_Trumps.Controllers.CardComparisonViewModel
+
+<h2>Choose an Attribute for Comparison</h2>
+
+<h3>@Model.Card1.Name</h3>
+<ul>
+    <li>Speed: @Model.Card1.Speed</li>
+    <li>Horsepower: @Model.Card1.Horsepower</li>
+    <li>Weight: @Model.Card1.Weight</li>
+    <li>Price: @Model.Card1.Price</li>
+</ul>
+
+<h3>@Model.Card2.Name</h3>
+<ul>
+    <li>Speed: @Model.Card2.Speed</li>
+    <li>Horsepower: @Model.Card2.Horsepower</li>
+    <li>Weight: @Model.Card2.Weight</li>
+    <li>Price: @Model.Card2.Price</li>
+</ul>
+
+<form asp-action="CompareCards" method="post">
+    <div class="form-group">
+        <label for="attributeName">Attribute:</label>
+        <select id="attributeName" name="attributeName" class="form-control" required>
+            <option value="speed">Speed (@Model.Card1.Speed vs @Model.Card2.Speed)</option>
+            <option value="horsepower">Horsepower (@Model.Card1.Horsepower vs @Model.Card2.Horsepower)</option>
+            <option value="weight">Weight (@Model.Card1.Weight vs @Model.Card2.Weight)</option>
+            <option value="price">Price (@Model.Card1.Price vs @Model.Card2.Price)</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Compare Cards</button>
+</form>

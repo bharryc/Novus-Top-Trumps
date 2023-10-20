@@ -1,5 +1,4 @@
-﻿@model Novus_Top_Trumps.Controllers.CardComparisonViewModel
-@{
+﻿@{
     ViewData["Title"] = "Select Attribute";
 }
 
@@ -7,20 +6,20 @@
 
 <h3>@Model.Card1.Name</h3>
 <ul>
-    <li>Speed: @Model.Card1.Speed</li>
-    <li>Horsepower: @Model.Card1.Horsepower</li>
-    <li>Weight: @Model.Card1.Weight</li>
-    <li>Price: @Model.Card1.Price</li>
+    <li>Strength: @Model.Card1.Strength</li>
+    <li>Technology: @Model.Card1.Technology</li>
+    <li>Willpower: @Model.Card1.Willpower</li>
+    <li>Agility: @Model.Card1.Agility</li>
 </ul>
 
 <form asp-action="SelectAttributeForComparison" method="post">
     <div class="form-group">
         <label for="attributeName">Attribute:</label>
         <select id="attributeName" name="attributeName" class="form-control" required>
-            <option value="speed">Speed</option>
-            <option value="horsepower">Horsepower</option>
-            <option value="weight">Weight</option>
-            <option value="price">Price</option>
+            <option value="strength">Strength</option>
+            <option value="technology">Technology</option>
+            <option value="willpower">Willpower</option>
+            <option value="agility">Agility</option>
         </select>
     </div>
     <button type="submit" class="btn btn-primary">Compare Cards</button>

@@ -1,4 +1,4 @@
-﻿@model Novus_Top_Trumps.Controllers.CardComparisonViewModel
+﻿@model Novus_Top_Trumps.Controllers.PokemonComparisonViewModel
 
 @{
     ViewData["Title"] = "CompareCards";
@@ -36,14 +36,14 @@
         background-color: #fff;
     }
 
-    .table-row:nth-child(even) {
-        background-color: #f2f2f2;
-    }
+        .table-row:nth-child(even) {
+            background-color: #f2f2f2;
+        }
 
-    .table-row td {
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
+        .table-row td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
 
     .winner {
         color: #28a745;
@@ -63,9 +63,9 @@
         transition: background-color 0.3s;
     }
 
-    .btn:hover {
-        background-color: #0056b3;
-    }
+        .btn:hover {
+            background-color: #0056b3;
+        }
 </style>
 
 <h2 class="heading">Card Comparison</h2>
@@ -94,9 +94,9 @@ else
             <th>ID</th>
             <th>Name</th>
             <th>Speed</th>
-            <th>Horsepower</th>
-            <th>Weight</th>
-            <th>Price</th>
+            <th>Attack</th>
+            <th>Defence</th>
+            <th>Health</th>
         </tr>
     </thead>
     <tbody>
@@ -106,9 +106,9 @@ else
                 <td>@card.ID</td>
                 <td>@card.Name</td>
                 <td>@card.Speed</td>
-                <td>@card.Horsepower</td>
-                <td>@card.Weight</td>
-                <td>@card.Price</td>
+                <td>@card.Attack</td>
+                <td>@card.Defence</td>
+                <td>@card.Health</td>
             </tr>
         }
     </tbody>
@@ -121,9 +121,9 @@ else
             <th>ID</th>
             <th>Name</th>
             <th>Speed</th>
-            <th>Horsepower</th>
-            <th>Weight</th>
-            <th>Price</th>
+            <th>Attack</th>
+            <th>Defence</th>
+            <th>Health</th>
         </tr>
     </thead>
     <tbody>
@@ -133,9 +133,9 @@ else
                 <td>@card.ID</td>
                 <td>@card.Name</td>
                 <td>@card.Speed</td>
-                <td>@card.Horsepower</td>
-                <td>@card.Weight</td>
-                <td>@card.Price</td>
+                <td>@card.Attack</td>
+                <td>@card.Defence</td>
+                <td>@card.Health</td>
             </tr>
         }
     </tbody>
@@ -144,14 +144,14 @@ else
 {
     @if (Model.IsCard1Winner.Value)
     {
-        <a asp-action="SelectAttribute" asp-controller="CarsCards" class="btn btn-primary">Next Round</a>
-    } else
+        <a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Next Round</a>
+    }
+    else
     {
-        <a asp-action="PickingNextCard" asp-controller="CarsCards" class="btn btn-primary">Next Round</a>
+        <a asp-action="PickingNextCard" asp-controller="PokemonCards" class="btn btn-primary">Next Round</a>
     }
 }
 else
 {
-    <a asp-action="SelectAttribute" asp-controller="CarsCards" class="btn btn-primary">Next Round</a>
+    <a asp-action="SelectAttribute" asp-controller="PokemonCards" class="btn btn-primary">Next Round</a>
 }
-

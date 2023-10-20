@@ -1,117 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Composition;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
 
-enum GameOverResult
-{
-    None,
-    Winner,
-    Loser
-}
-
-
 namespace Novus_Top_Trumps.Controllers
 {
-    public class CarsCardsController : Controller
+    public class HeroCardsController : Controller
     {
         private readonly string DECK1_KEY = "Deck1";
         private readonly string DECK2_KEY = "Deck2";
-        private readonly string DEFAULT_ATTRIBUTE = "speed";
+        private readonly string DEFAULT_ATTRIBUTE = "strength";
         private readonly string ERROR_NOT_ENOUGH_CARDS = "Not enough cards to compare";
         private readonly string ERROR_INVALID_ATTRIBUTE = "Invalid attribute name";
         private readonly CardsDBContext _context;
         private string difficulty = "easy";
 
-        public CarsCardsController(CardsDBContext context)
+        public HeroCardsController(CardsDBContext context)
         {
             _context = context;
         }
 
-        public IActionResult CarsCards()
+        public IActionResult HeroCards()
         {
             return View();
         }
 
-        // GET: CarsCards
+        // GET: HeroCards
         public async Task<IActionResult> Index()
         {
-              return _context.CarsCard != null ? 
-                          View(await _context.CarsCard.ToListAsync()) :
-                          Problem("Entity set 'CardsDBContext.CarsCard'  is null.");
+            return _context.HeroCard != null ?
+                        View(await _context.HeroCard.ToListAsync()) :
+                        Problem("Entity set 'CardsDBContext.HeroCard'  is null.");
         }
 
-        // GET: CarsCards/Details/5
+        // GET: HeroCards/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.CarsCard == null)
+            if (id == null || _context.HeroCard == null)
             {
                 return NotFound();
             }
 
-            var carsCard = await _context.CarsCard
+            var HeroCard = await _context.HeroCard
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (carsCard == null)
+            if (HeroCard == null)
             {
                 return NotFound();
             }
 
-            return View(carsCard);
+            return View(HeroCard);
         }
 
-        // GET: CarsCards/Create
+        // GET: HeroCards/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: CarsCards/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // POST: HeroCards/Create
+        // To protect from overposting Technologys, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Speed,Horsepower,Weight,Price")] CarsCards carsCard)
+        public async Task<IActionResult> Create([Bind("ID,Name,Strength,Technology,Willpower,Agility")] HeroCards HeroCard)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(carsCard);
+                _context.Add(HeroCard);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(carsCard);
+            return View(HeroCard);
         }
 
-        // GET: CarsCards/Edit/5
+        // GET: HeroCards/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.CarsCard == null)
+            if (id == null || _context.HeroCard == null)
             {
                 return NotFound();
             }
 
-            var carsCard = await _context.CarsCard.FindAsync(id);
-            if (carsCard == null)
+            var HeroCard = await _context.HeroCard.FindAsync(id);
+            if (HeroCard == null)
             {
                 return NotFound();
             }
-            return View(carsCard);
+            return View(HeroCard);
         }
 
-        // POST: CarsCards/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // POST: HeroCards/Edit/5
+        // To protect from overposting Technologys, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Speed,Horsepower,Weight,Price")] CarsCards carsCard)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Strength,Technology,Willpower,Agility")] HeroCards HeroCard)
         {
-            if (id != carsCard.ID)
+            if (id != HeroCard.ID)
             {
                 return NotFound();
             }
@@ -120,12 +107,12 @@ namespace Novus_Top_Trumps.Controllers
             {
                 try
                 {
-                    _context.Update(carsCard);
+                    _context.Update(HeroCard);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CarsCardExists(carsCard.ID))
+                    if (!HeroCardExists(HeroCard.ID))
                     {
                         return NotFound();
                     }
@@ -136,42 +123,42 @@ namespace Novus_Top_Trumps.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(carsCard);
+            return View(HeroCard);
         }
 
-        // GET: CarsCards/Delete/5
+        // GET: HeroCards/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.CarsCard == null)
+            if (id == null || _context.HeroCard == null)
             {
                 return NotFound();
             }
 
-            var carsCard = await _context.CarsCard
+            var HeroCard = await _context.HeroCard
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (carsCard == null)
+            if (HeroCard == null)
             {
                 return NotFound();
             }
 
-            return View(carsCard);
+            return View(HeroCard);
         }
 
-        // POST: CarsCards/Delete/5
+        // POST: HeroCards/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.CarsCard == null)
+            if (_context.HeroCard == null)
             {
-                return Problem("Entity set 'CardsDBContext.CarsCard'  is null.");
+                return Problem("Entity set 'CardsDBContext.HeroCard'  is null.");
             }
-            var carsCard = await _context.CarsCard.FindAsync(id);
-            if (carsCard != null)
+            var HeroCard = await _context.HeroCard.FindAsync(id);
+            if (HeroCard != null)
             {
-                _context.CarsCard.Remove(carsCard);
+                _context.HeroCard.Remove(HeroCard);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -196,8 +183,8 @@ namespace Novus_Top_Trumps.Controllers
 
             attributeName = attributeName ?? DEFAULT_ATTRIBUTE;
 
-            var card1 = await _context.CarsCard.FindAsync(deck1.First());
-            var card2 = await _context.CarsCard.FindAsync(deck2.First());
+            var card1 = await _context.HeroCard.FindAsync(deck1.First());
+            var card2 = await _context.HeroCard.FindAsync(deck2.First());
 
             if (card1 == null || card2 == null)
             {
@@ -235,12 +222,12 @@ namespace Novus_Top_Trumps.Controllers
             }
 
 
-            var viewModel = new CardComparisonViewModel
+            var viewModel = new HeroComparisonViewModel
             {
                 Card1 = card1,
                 Card2 = card2,
-                Deck1 = await _context.CarsCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
-                Deck2 = await _context.CarsCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
+                Deck1 = await _context.HeroCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
+                Deck2 = await _context.HeroCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
                 AttributeName = attributeName,
                 IsCard1Winner = isCard1Winner,
                 Card1AttributeValue = card1AttributeValue,
@@ -267,7 +254,7 @@ namespace Novus_Top_Trumps.Controllers
         }
         private async Task<List<int>> GetAllCardIds()
         {
-            return await _context.CarsCard.Select(card => card.ID).ToListAsync();
+            return await _context.HeroCard.Select(card => card.ID).ToListAsync();
         }
 
         private void ShuffleCards(List<int> cardIds)
@@ -292,7 +279,7 @@ namespace Novus_Top_Trumps.Controllers
             TempData[DECK2_KEY] = JsonConvert.SerializeObject(deck2);
         }
 
-        private bool TryCompareAttributes(string attributeName, CarsCards card1, CarsCards card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner)
+        private bool TryCompareAttributes(string attributeName, HeroCards card1, HeroCards card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner)
         {
             card1AttributeValue = 0;
             card2AttributeValue = 0;
@@ -300,25 +287,25 @@ namespace Novus_Top_Trumps.Controllers
 
             switch (attributeName)
             {
-                case "speed":
-                    card1AttributeValue = card1.Speed;
-                    card2AttributeValue = card2.Speed;
-                    isCard1Winner = card1.Speed > card2.Speed;
+                case "strength":
+                    card1AttributeValue = card1.Strength;
+                    card2AttributeValue = card2.Strength;
+                    isCard1Winner = card1.Strength > card2.Strength;
                     break;
-                case "horsepower":
-                    card1AttributeValue = card1.Horsepower;
-                    card2AttributeValue = card2.Horsepower;
-                    isCard1Winner = card1.Horsepower > card2.Horsepower;
+                case "technology":
+                    card1AttributeValue = card1.Technology;
+                    card2AttributeValue = card2.Technology;
+                    isCard1Winner = card1.Technology > card2.Technology;
                     break;
-                case "weight":
-                    card1AttributeValue = card1.Weight;
-                    card2AttributeValue = card2.Weight;
-                    isCard1Winner = card1.Weight > card2.Weight;
+                case "willpower":
+                    card1AttributeValue = card1.Willpower;
+                    card2AttributeValue = card2.Willpower;
+                    isCard1Winner = card1.Willpower > card2.Willpower;
                     break;
-                case "price":
-                    card1AttributeValue = card1.Price;
-                    card2AttributeValue = card2.Price;
-                    isCard1Winner = card1.Price > card2.Price;
+                case "agility":
+                    card1AttributeValue = card1.Agility;
+                    card2AttributeValue = card2.Agility;
+                    isCard1Winner = card1.Agility > card2.Agility;
                     break;
                 default:
                     return false;
@@ -328,9 +315,9 @@ namespace Novus_Top_Trumps.Controllers
         }
 
 
-        private bool CarsCardExists(int id)
+        private bool HeroCardExists(int id)
         {
-          return (_context.CarsCard?.Any(e => e.ID == id)).GetValueOrDefault();
+            return (_context.HeroCard?.Any(e => e.ID == id)).GetValueOrDefault();
         }
 
         [HttpPost]
@@ -338,7 +325,7 @@ namespace Novus_Top_Trumps.Controllers
         {
 
             // Simple validation: check if attributeName is one of the allowed values
-            var validAttributes = new[] { "speed", "horsepower", "weight", "price" };
+            var validAttributes = new[] { "strength", "technology", "willpower", "agility" };
             if (!validAttributes.Contains(attributeName?.ToLower()))
             {
                 return BadRequest("Invalid attribute selected");
@@ -365,10 +352,10 @@ namespace Novus_Top_Trumps.Controllers
                 deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
             }
 
-            var card1 = await _context.CarsCard.FindAsync(deck1.First());
-            var card2 = await _context.CarsCard.FindAsync(deck2.First());
+            var card1 = await _context.HeroCard.FindAsync(deck1.First());
+            var card2 = await _context.HeroCard.FindAsync(deck2.First());
 
-            var viewModel = new CardComparisonViewModel
+            var viewModel = new HeroComparisonViewModel
             {
                 Card1 = card1,
                 Card2 = card2
@@ -383,7 +370,7 @@ namespace Novus_Top_Trumps.Controllers
         public async Task InitializeDecks()
         {
             // Retrieve all card IDs
-            var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
+            var allCardIds = await _context.HeroCard.Select(card => card.ID).ToListAsync();
 
             // Check for insufficient cards
             if (allCardIds.Count < 2)
@@ -414,15 +401,15 @@ namespace Novus_Top_Trumps.Controllers
 
         public async Task<IActionResult> DisplayTopCards()
         {
-           await InitializeDecks();
+            await InitializeDecks();
 
             var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
             var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
 
-            var card1 = await _context.CarsCard.FindAsync(deck1.First());
-            var card2 = await _context.CarsCard.FindAsync(deck2.First());
+            var card1 = await _context.HeroCard.FindAsync(deck1.First());
+            var card2 = await _context.HeroCard.FindAsync(deck2.First());
 
-            var viewModel = new CardComparisonViewModel
+            var viewModel = new HeroComparisonViewModel
             {
                 Card1 = card1,
                 Card2 = card2,
@@ -431,8 +418,6 @@ namespace Novus_Top_Trumps.Controllers
 
             return View("DisplayTopCardsView", viewModel);
         }
-
-
 
         public async Task<IActionResult> PickingNextCard()
         {
@@ -443,32 +428,32 @@ namespace Novus_Top_Trumps.Controllers
             difficulty = TempData["Difficulty"] as string;
 
             // Get the current deck of the AI
-            var currentCard = await _context.CarsCard.FindAsync(deck2.First());
+            var currentCard = await _context.HeroCard.FindAsync(deck2.First());
 
             // Create array for calculating attribute win rate
             float[] percentToWin = { 0, 0, 0, 0 };
 
             // Check how many cards each attribute beats
-            foreach(int i in deck1)
+            foreach (int i in deck1)
             {
-                var card = await _context.CarsCard.FindAsync(i);
-                if (currentCard.Speed > card.Speed)
+                var card = await _context.HeroCard.FindAsync(i);
+                if (currentCard.Strength > card.Strength)
                     percentToWin[0]++;
-                if (currentCard.Horsepower > card.Horsepower)
+                if (currentCard.Technology > card.Technology)
                     percentToWin[1]++;
-                if (currentCard.Weight > card.Weight)
+                if (currentCard.Willpower > card.Willpower)
                     percentToWin[2]++;
-                if (currentCard.Price > card.Price)
+                if (currentCard.Agility > card.Agility)
                     percentToWin[3]++;
             }
 
             // Calculate the % of winning in each attribute
-            for (int i = 0; i < percentToWin.Length; i++) 
+            for (int i = 0; i < percentToWin.Length; i++)
             {
                 percentToWin[i] = percentToWin[i] / deck1.Count;
             }
 
-            switch (difficulty.ToLower()) 
+            switch (difficulty.ToLower())
             {
                 case "easy":
                     var rand = new Random();
@@ -509,16 +494,16 @@ namespace Novus_Top_Trumps.Controllers
             switch (i)
             {
                 case 0:
-                    return "speed";
+                    return "Strength";
 
                 case 1:
-                    return "horsepower";
+                    return "Technology";
 
                 case 2:
-                    return "weight";
+                    return "Willpower";
 
                 case 3:
-                    return "price";
+                    return "Agility";
 
                 default:
                     return null;
@@ -531,23 +516,19 @@ namespace Novus_Top_Trumps.Controllers
                 return GameOverResult.Loser;
             if (deck.Count == 32)
                 return GameOverResult.Winner;
+
             return GameOverResult.None;
         }
-
-
         public async Task<IActionResult> GameResult(String result)
         {
             await InitializeDecks();
             return View("Result", result); // Ensure there is a GameResult.cshtml view that can handle a string model
         }
 
-
-
         public async Task<IActionResult> RestartGame()
         {
             await InitializeDecks();
             return RedirectToAction("SomeStartingAction"); // Redirect to the starting point of the game
         }
-
     }
 }
