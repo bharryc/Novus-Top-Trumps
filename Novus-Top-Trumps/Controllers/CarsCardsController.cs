@@ -9,6 +9,13 @@ using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
 
+
+enum GameOverResult
+{
+    None,
+    Winner,
+    Loser
+}
 namespace Novus_Top_Trumps.Controllers
 {
     public class CarsCardsController : Controller
@@ -335,7 +342,7 @@ namespace Novus_Top_Trumps.Controllers
             return View(viewModel);
         }
 
-        private async Task InitializeDecks()
+        public async Task InitializeDecks()
         {
             // Retrieve all card IDs
             var allCardIds = await _context.CarsCard.Select(card => card.ID).ToListAsync();
@@ -474,6 +481,17 @@ namespace Novus_Top_Trumps.Controllers
                 default:
                     return null;
             }
+        }
+
+
+        private GameOverResult IsGameOver(List<int> deck)
+        {
+            if (deck.Count == 0)
+                return GameOverResult.Loser;
+            if (deck.Count == 32)
+                return GameOverResult.Winner;
+
+            return GameOverResult.None;
         }
 
 
