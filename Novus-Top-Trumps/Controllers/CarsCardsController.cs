@@ -17,6 +17,13 @@ enum GameOverResult
 }
 
 
+
+enum GameOverResult
+{
+    None,
+    Winner,
+    Loser
+}
 namespace Novus_Top_Trumps.Controllers
 {
     public class CarsCardsController : Controller
@@ -426,15 +433,107 @@ namespace Novus_Top_Trumps.Controllers
             return View("DisplayTopCardsView", viewModel);
         }
 
+
+
+        public async Task<IActionResult> PickingNextCard(string difficulty)
+        {
+            // Get the id's for the decks
+            var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+            var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            // Get the current deck of the AI
+            var currentCard = await _context.CarsCard.FindAsync(deck2.First());
+
+            // Create array for calculating attribute win rate
+            float[] percentToWin = { 0, 0, 0, 0 };
+
+            // Check how many cards each attribute beats
+            foreach(int i in deck1)
+            {
+                var card = await _context.CarsCard.FindAsync(i);
+                if (currentCard.Speed > card.Speed)
+                    percentToWin[0]++;
+                if (currentCard.Horsepower > card.Horsepower)
+                    percentToWin[1]++;
+                if (currentCard.Weight > card.Weight)
+                    percentToWin[2]++;
+                if (currentCard.Price > card.Price)
+                    percentToWin[3]++;
+            }
+
+            // Calculate the % of winning in each attribute
+            for (int i = 0; i < percentToWin.Length; i++) 
+            {
+                percentToWin[i] = percentToWin[i] / deck1.Count;
+            }
+
+            switch (difficulty.ToLower()) 
+            {
+                case "easy":
+                    var rand = new Random();
+                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(rand.Next(0, 3)));
+                    break;
+
+                case "medium":
+                    var rands = new Random();
+                    int[] temps = { 0, 0 };
+                    for (int i = 0; i < percentToWin.Length; i++)
+                    {
+                        if (percentToWin[i] > temps[0])
+                            temps[0] = i;
+                        else if (percentToWin[i] > temps[1])
+                            temps[1] = i;
+                    }
+                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(temps[rands.Next(0, 1)]));
+                    break;
+
+                case "hard":
+                    int temp = 0;
+                    for (int i = 0; i < percentToWin.Length; i++)
+                    {
+                        if (percentToWin[i] > temp)
+                            temp = i;
+                    }
+                    ;
+                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(temp));
+
+                default:
+                    return BadRequest("Incorrect AI difficulty used.");
+            }
+
+        }
+
+        public string NumToAttribute(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return "speed";
+
+                case 1:
+                    return "horsepower";
+
+                case 2:
+                    return "weight";
+
+                case 3:
+                    return "price";
+
+                default:
+                    return null;
+            }
+        }
+
         private GameOverResult IsGameOver(List<int> deck)
         {
             if (deck.Count == 0)
                 return GameOverResult.Loser;
             if (deck.Count == 32)
                 return GameOverResult.Winner;
-
             return GameOverResult.None;
         }
+
+
         public async Task<IActionResult> GameResult(String result)
         {
             await InitializeDecks();
