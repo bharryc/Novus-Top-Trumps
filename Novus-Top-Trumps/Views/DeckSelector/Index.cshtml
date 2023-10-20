@@ -3,17 +3,22 @@
     ViewData["Title"] = "Deck Selection";
 }
 
-<div class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Dropdown button
-    </button>
-    <ul class="dropdown-menu">
-        @foreach(CustomItemModel deck in customItems)
-        {
-            <li><a class="dropdown-item" href=@deck.Link>@deck.Name</a></li>
-        }
-    </ul>
+<div>
+    
+
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Dropdown button
+        </button>
+        <ul class="dropdown-menu">
+            @foreach (CustomItemModel deck in customItems)
+            {
+                <li><a class="dropdown-item" href=@deck.Link>@deck.Name</a></li>
+            }
+        </ul>
+    </div>
 </div>
+
 
 
 

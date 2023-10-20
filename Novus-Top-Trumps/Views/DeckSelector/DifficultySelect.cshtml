@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Difficulty Selection";
+}
+
+<form asp-action="Index" method="post">
+    <div class="form-group">
+        <label for="difficulty">Difficulty:</label>
+        <select id="difficulty" name="difficulty" class="form-control" required>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Select Difficulty</button>
+</form>

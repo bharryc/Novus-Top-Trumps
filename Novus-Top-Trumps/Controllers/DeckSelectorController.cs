@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
+using System.Text.Json;
 
 namespace Novus_Top_Trumps.Controllers
 {
@@ -15,8 +17,10 @@ namespace Novus_Top_Trumps.Controllers
         }
 
         [Authorize]
-        public IActionResult Index()
+        public IActionResult Index(string difficulty)
         {
+            TempData["Difficulty"] = difficulty;
+
             List<CustomItemModel> customItems = new List<CustomItemModel>
             {
                 new CustomItemModel { Link = "../CarsCards/SelectAttribute", Name = "Cars" },
@@ -25,6 +29,11 @@ namespace Novus_Top_Trumps.Controllers
             
             ViewBag.CustomItems = customItems;
             
+            return View();
+        }
+        [Authorize]
+        public IActionResult DifficultySelect()
+        {
             return View();
         }
     }

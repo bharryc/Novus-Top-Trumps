@@ -9,14 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
-enum GameOverResult
-{
-    None,
-    Winner,
-    Loser
-}
-
-
 
 enum GameOverResult
 {
@@ -24,6 +16,8 @@ enum GameOverResult
     Winner,
     Loser
 }
+
+
 namespace Novus_Top_Trumps.Controllers
 {
     public class CarsCardsController : Controller
@@ -34,6 +28,7 @@ namespace Novus_Top_Trumps.Controllers
         private readonly string ERROR_NOT_ENOUGH_CARDS = "Not enough cards to compare";
         private readonly string ERROR_INVALID_ATTRIBUTE = "Invalid attribute name";
         private readonly CardsDBContext _context;
+        private string difficulty = "easy";
 
         public CarsCardsController(CardsDBContext context)
         {
@@ -435,11 +430,13 @@ namespace Novus_Top_Trumps.Controllers
 
 
 
-        public async Task<IActionResult> PickingNextCard(string difficulty)
+        public async Task<IActionResult> PickingNextCard()
         {
             // Get the id's for the decks
             var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
             var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            difficulty = TempData["Difficulty"] as string;
 
             // Get the current deck of the AI
             var currentCard = await _context.CarsCard.FindAsync(deck2.First());
@@ -471,7 +468,7 @@ namespace Novus_Top_Trumps.Controllers
             {
                 case "easy":
                     var rand = new Random();
-                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(rand.Next(0, 3)));
+                    return SelectAttributeForComparison(NumToAttribute(rand.Next(0, 3)));
                     break;
 
                 case "medium":
@@ -484,7 +481,7 @@ namespace Novus_Top_Trumps.Controllers
                         else if (percentToWin[i] > temps[1])
                             temps[1] = i;
                     }
-                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(temps[rands.Next(0, 1)]));
+                    return SelectAttributeForComparison(NumToAttribute(temps[rands.Next(0, 1)]));
                     break;
 
                 case "hard":
@@ -495,7 +492,7 @@ namespace Novus_Top_Trumps.Controllers
                             temp = i;
                     }
                     ;
-                    return RedirectToAction("SelectAttributeForComparison", NumToAttribute(temp));
+                    return SelectAttributeForComparison(NumToAttribute(temp));
 
                 default:
                     return BadRequest("Incorrect AI difficulty used.");
