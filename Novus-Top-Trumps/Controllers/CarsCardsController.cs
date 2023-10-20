@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,13 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
+enum GameOverResult
+{
+    None,
+    Winner,
+    Loser
+}
+
 
 
 enum GameOverResult
@@ -206,6 +214,28 @@ namespace Novus_Top_Trumps.Controllers
                 return BadRequest(ERROR_INVALID_ATTRIBUTE);
             }
 
+            if (isCard1Winner == true)
+            {
+                deck2.Remove(card2.ID);
+                deck1.Add(card2.ID);
+            }
+            else if (isCard1Winner == false)
+            {
+                deck1.Remove(card1.ID);
+                deck2.Add(card1.ID);
+            }
+
+            TempData[DECK1_KEY] = JsonConvert.SerializeObject(deck1);
+            TempData[DECK2_KEY] = JsonConvert.SerializeObject(deck2);
+
+            var gameOverResult = IsGameOver(deck1);
+            if (gameOverResult != GameOverResult.None)
+            {
+                await InitializeDecks();
+                return RedirectToAction("GameResult", new { result = gameOverResult.ToString() });
+            }
+
+
             var viewModel = new CardComparisonViewModel
             {
                 Card1 = card1,
@@ -307,6 +337,7 @@ namespace Novus_Top_Trumps.Controllers
         [HttpPost]
         public IActionResult SelectAttributeForComparison(string attributeName)
         {
+
             // Simple validation: check if attributeName is one of the allowed values
             var validAttributes = new[] { "speed", "horsepower", "weight", "price" };
             if (!validAttributes.Contains(attributeName?.ToLower()))
@@ -326,6 +357,14 @@ namespace Novus_Top_Trumps.Controllers
 
             var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
             var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            // Add this check here
+            if (!deck1.Any() || !deck2.Any())
+            {
+                await InitializeDecks();
+                deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+                deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+            }
 
             var card1 = await _context.CarsCard.FindAsync(deck1.First());
             var card2 = await _context.CarsCard.FindAsync(deck2.First());
@@ -393,6 +432,8 @@ namespace Novus_Top_Trumps.Controllers
 
             return View("DisplayTopCardsView", viewModel);
         }
+
+
 
         public async Task<IActionResult> PickingNextCard(string difficulty)
         {
@@ -483,17 +524,29 @@ namespace Novus_Top_Trumps.Controllers
             }
         }
 
-
         private GameOverResult IsGameOver(List<int> deck)
         {
             if (deck.Count == 0)
                 return GameOverResult.Loser;
             if (deck.Count == 32)
                 return GameOverResult.Winner;
-
             return GameOverResult.None;
         }
 
+
+        public async Task<IActionResult> GameResult(String result)
+        {
+            await InitializeDecks();
+            return View("Result", result); // Ensure there is a GameResult.cshtml view that can handle a string model
+        }
+
+
+
+        public async Task<IActionResult> RestartGame()
+        {
+            await InitializeDecks();
+            return RedirectToAction("SomeStartingAction"); // Redirect to the starting point of the game
+        }
 
     }
 }

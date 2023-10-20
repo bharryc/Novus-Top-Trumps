@@ -1,12 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Composition;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Novus_Top_Trumps.Data;
 using Novus_Top_Trumps.Models;
+
 
 namespace Novus_Top_Trumps.Controllers
 {
     public class PokemonCardsController : Controller
     {
+        private readonly string DECK1_KEY = "Deck1";
+        private readonly string DECK2_KEY = "Deck2";
+        private readonly string DEFAULT_ATTRIBUTE = "speed";
+        private readonly string ERROR_NOT_ENOUGH_CARDS = "Not enough cards to compare";
+        private readonly string ERROR_INVALID_ATTRIBUTE = "Invalid attribute name";
         private readonly CardsDBContext _context;
 
         public PokemonCardsController(CardsDBContext context)
@@ -35,14 +48,14 @@ namespace Novus_Top_Trumps.Controllers
                 return NotFound();
             }
 
-            var pokemonCard = await _context.PokemonCard
+            var PokemonCard = await _context.PokemonCard
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (pokemonCard == null)
+            if (PokemonCard == null)
             {
                 return NotFound();
             }
 
-            return View(pokemonCard);
+            return View(PokemonCard);
         }
 
         // GET: PokemonCards/Create
@@ -56,15 +69,15 @@ namespace Novus_Top_Trumps.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Speed,Horsepower,Weight,Price")] PokemonCards pokemonCard)
+        public async Task<IActionResult> Create([Bind("ID,Name,Speed,Attack,Defence,Health")] PokemonCards PokemonCard)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(pokemonCard);
+                _context.Add(PokemonCard);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(pokemonCard);
+            return View(PokemonCard);
         }
 
         // GET: PokemonCards/Edit/5
@@ -75,12 +88,12 @@ namespace Novus_Top_Trumps.Controllers
                 return NotFound();
             }
 
-            var pokemonCard = await _context.PokemonCard.FindAsync(id);
-            if (pokemonCard == null)
+            var PokemonCard = await _context.PokemonCard.FindAsync(id);
+            if (PokemonCard == null)
             {
                 return NotFound();
             }
-            return View(pokemonCard);
+            return View(PokemonCard);
         }
 
         // POST: PokemonCards/Edit/5
@@ -88,9 +101,9 @@ namespace Novus_Top_Trumps.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Speed,Horsepower,Weight,Price")] PokemonCards pokemonCard)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Speed,Attack,Defence,Health")] PokemonCards PokemonCard)
         {
-            if (id != pokemonCard.ID)
+            if (id != PokemonCard.ID)
             {
                 return NotFound();
             }
@@ -99,12 +112,12 @@ namespace Novus_Top_Trumps.Controllers
             {
                 try
                 {
-                    _context.Update(pokemonCard);
+                    _context.Update(PokemonCard);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PokemonCardExists(pokemonCard.ID))
+                    if (!PokemonCardExists(PokemonCard.ID))
                     {
                         return NotFound();
                     }
@@ -115,7 +128,7 @@ namespace Novus_Top_Trumps.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(pokemonCard);
+            return View(PokemonCard);
         }
 
         // GET: PokemonCards/Delete/5
@@ -126,14 +139,14 @@ namespace Novus_Top_Trumps.Controllers
                 return NotFound();
             }
 
-            var pokemonCard = await _context.PokemonCard
+            var PokemonCard = await _context.PokemonCard
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (pokemonCard == null)
+            if (PokemonCard == null)
             {
                 return NotFound();
             }
 
-            return View(pokemonCard);
+            return View(PokemonCard);
         }
 
         // POST: PokemonCards/Delete/5
@@ -145,10 +158,10 @@ namespace Novus_Top_Trumps.Controllers
             {
                 return Problem("Entity set 'CardsDBContext.PokemonCard'  is null.");
             }
-            var pokemonCard = await _context.PokemonCard.FindAsync(id);
-            if (pokemonCard != null)
+            var PokemonCard = await _context.PokemonCard.FindAsync(id);
+            if (PokemonCard != null)
             {
-                _context.PokemonCard.Remove(pokemonCard);
+                _context.PokemonCard.Remove(PokemonCard);
             }
 
             await _context.SaveChangesAsync();
@@ -157,33 +170,23 @@ namespace Novus_Top_Trumps.Controllers
 
         public async Task<IActionResult> CompareCards(string attributeName)
         {
-            // Retrieve all card IDs
-            var allCardIds = await _context.PokemonCard.Select(card => card.ID).ToListAsync();
+            List<int> deck1;
+            List<int> deck2;
 
-            // Check for insufficient cards
-            if (allCardIds.Count < 2)
+            if (!DecksExistInTempData(out deck1, out deck2))
             {
-                return View("Error", new ErrorViewModel { RequestId = "Not enough cards to compare" });
+                var allCardIds = await GetAllCardIds();
+
+                if (allCardIds.Count < 2)
+                {
+                    return View("Error", new ErrorViewModel { RequestId = ERROR_NOT_ENOUGH_CARDS });
+                }
+
+                ShuffleCards(allCardIds);
+                SplitCardsIntoDecks(allCardIds, out deck1, out deck2);
             }
 
-            var rand = new Random();
-
-            // Shuffle all cards (Fisher-Yates shuffle)
-            for (int i = allCardIds.Count - 1; i > 0; i--)
-            {
-                int j = rand.Next(i + 1);
-                var temp = allCardIds[i];
-                allCardIds[i] = allCardIds[j];
-                allCardIds[j] = temp;
-            }
-
-            // Split into two decks
-            var halfIndex = allCardIds.Count / 2;
-            var deck1 = allCardIds.Take(halfIndex).ToList();
-            var deck2 = allCardIds.Skip(halfIndex).ToList();
-
-            // Default attribute if one is not provided
-            attributeName = attributeName ?? "speed";
+            attributeName = attributeName ?? DEFAULT_ATTRIBUTE;
 
             var card1 = await _context.PokemonCard.FindAsync(deck1.First());
             var card2 = await _context.PokemonCard.FindAsync(deck2.First());
@@ -193,12 +196,97 @@ namespace Novus_Top_Trumps.Controllers
                 return NotFound();
             }
 
-            int card1AttributeValue;
-            int card2AttributeValue;
-            bool? isCard1Winner = null;
+            if (!TryCompareAttributes(attributeName.ToLower(), card1, card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner))
+            {
+                return BadRequest(ERROR_INVALID_ATTRIBUTE);
+            }
 
-            // Compare attributes
-            switch (attributeName.ToLower())
+            if (isCard1Winner == true)
+            {
+                deck2.Remove(card2.ID);
+                deck1.Add(card2.ID);
+            }
+            else if (isCard1Winner == false)
+            {
+                deck1.Remove(card1.ID);
+                deck2.Add(card1.ID);
+            }
+
+            TempData[DECK1_KEY] = JsonConvert.SerializeObject(deck1);
+            TempData[DECK2_KEY] = JsonConvert.SerializeObject(deck2);
+
+            var gameOverResult = IsGameOver(deck1);
+            if (gameOverResult != GameOverResult.None)
+            {
+                await InitializeDecks();
+                return RedirectToAction("GameResult", new { result = gameOverResult.ToString() });
+            }
+
+
+            var viewModel = new PokemonComparisonViewModel
+            {
+                Card1 = card1,
+                Card2 = card2,
+                Deck1 = await _context.PokemonCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
+                Deck2 = await _context.PokemonCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
+                AttributeName = attributeName,
+                IsCard1Winner = isCard1Winner,
+                Card1AttributeValue = card1AttributeValue,
+                Card2AttributeValue = card2AttributeValue
+            };
+
+            return View(viewModel);
+        }
+        private bool DecksExistInTempData(out List<int> deck1, out List<int> deck2)
+        {
+            if (TempData[DECK1_KEY] == null || TempData[DECK2_KEY] == null)
+            {
+                deck1 = null;
+                deck2 = null;
+                return false;
+            }
+
+            deck1 = JsonConvert.DeserializeObject<List<int>>(TempData[DECK1_KEY].ToString());
+            deck2 = JsonConvert.DeserializeObject<List<int>>(TempData[DECK2_KEY].ToString());
+
+            TempData.Keep(DECK1_KEY);
+            TempData.Keep(DECK2_KEY);
+            return true;
+        }
+        private async Task<List<int>> GetAllCardIds()
+        {
+            return await _context.PokemonCard.Select(card => card.ID).ToListAsync();
+        }
+
+        private void ShuffleCards(List<int> cardIds)
+        {
+            var rand = new Random();
+            for (int i = cardIds.Count - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                var temp = cardIds[i];
+                cardIds[i] = cardIds[j];
+                cardIds[j] = temp;
+            }
+        }
+
+        private void SplitCardsIntoDecks(List<int> allCardIds, out List<int> deck1, out List<int> deck2)
+        {
+            var halfIndex = allCardIds.Count / 2;
+            deck1 = allCardIds.Take(halfIndex).ToList();
+            deck2 = allCardIds.Skip(halfIndex).ToList();
+
+            TempData[DECK1_KEY] = JsonConvert.SerializeObject(deck1);
+            TempData[DECK2_KEY] = JsonConvert.SerializeObject(deck2);
+        }
+
+        private bool TryCompareAttributes(string attributeName, PokemonCards card1, PokemonCards card2, out int card1AttributeValue, out int card2AttributeValue, out bool? isCard1Winner)
+        {
+            card1AttributeValue = 0;
+            card2AttributeValue = 0;
+            isCard1Winner = null;
+
+            switch (attributeName)
             {
                 case "speed":
                     card1AttributeValue = card1.Speed;
@@ -221,22 +309,10 @@ namespace Novus_Top_Trumps.Controllers
                     isCard1Winner = card1.Health > card2.Health;
                     break;
                 default:
-                    return BadRequest("Invalid attribute name");
+                    return false;
             }
 
-            var viewModel = new PokemonComparisonViewModel
-            {
-                Card1 = card1,
-                Card2 = card2,
-                Deck1 = await _context.PokemonCard.Where(c => deck1.Contains(c.ID)).ToListAsync(),
-                Deck2 = await _context.PokemonCard.Where(c => deck2.Contains(c.ID)).ToListAsync(),
-                AttributeName = attributeName,
-                IsCard1Winner = isCard1Winner,
-                Card1AttributeValue = card1AttributeValue,
-                Card2AttributeValue = card2AttributeValue
-            };
-
-            return View(viewModel);
+            return true;
         }
 
 
@@ -248,6 +324,7 @@ namespace Novus_Top_Trumps.Controllers
         [HttpPost]
         public IActionResult SelectAttributeForComparison(string attributeName)
         {
+
             // Simple validation: check if attributeName is one of the allowed values
             var validAttributes = new[] { "speed", "attack", "defence", "health" };
             if (!validAttributes.Contains(attributeName?.ToLower()))
@@ -258,9 +335,110 @@ namespace Novus_Top_Trumps.Controllers
             return RedirectToAction("CompareCards", new { attributeName });
         }
 
-        public IActionResult SelectAttribute()
+        public async Task<IActionResult> SelectAttribute()
         {
-            return View();
+            if (TempData["Deck1"] == null || TempData["Deck2"] == null)
+            {
+                await InitializeDecks();
+            }
+
+            var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+            var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            // Add this check here
+            if (!deck1.Any() || !deck2.Any())
+            {
+                await InitializeDecks();
+                deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+                deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+            }
+
+            var card1 = await _context.PokemonCard.FindAsync(deck1.First());
+            var card2 = await _context.PokemonCard.FindAsync(deck2.First());
+
+            var viewModel = new PokemonComparisonViewModel
+            {
+                Card1 = card1,
+                Card2 = card2
+            };
+
+            TempData.Keep("Deck1");
+            TempData.Keep("Deck2");
+
+            return View(viewModel);
+        }
+
+        public async Task InitializeDecks()
+        {
+            // Retrieve all card IDs
+            var allCardIds = await _context.PokemonCard.Select(card => card.ID).ToListAsync();
+
+            // Check for insufficient cards
+            if (allCardIds.Count < 2)
+            {
+                throw new InvalidOperationException("Not enough cards to compare");
+            }
+
+            var rand = new Random();
+
+            // Shuffle all cards (Fisher-Yates shuffle)
+            for (int i = allCardIds.Count - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
+                var temp = allCardIds[i];
+                allCardIds[i] = allCardIds[j];
+                allCardIds[j] = temp;
+            }
+
+            // Split into two decks
+            var halfIndex = allCardIds.Count / 2;
+            var deck1 = allCardIds.Take(halfIndex).ToList();
+            var deck2 = allCardIds.Skip(halfIndex).ToList();
+
+            TempData["Deck1"] = JsonConvert.SerializeObject(deck1);
+            TempData["Deck2"] = JsonConvert.SerializeObject(deck2);
+        }
+
+
+        public async Task<IActionResult> DisplayTopCards()
+        {
+            await InitializeDecks();
+
+            var deck1 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck1"].ToString());
+            var deck2 = JsonConvert.DeserializeObject<List<int>>(TempData["Deck2"].ToString());
+
+            var card1 = await _context.PokemonCard.FindAsync(deck1.First());
+            var card2 = await _context.PokemonCard.FindAsync(deck2.First());
+
+            var viewModel = new PokemonComparisonViewModel
+            {
+                Card1 = card1,
+                Card2 = card2,
+                // Populate other required properties if needed
+            };
+
+            return View("DisplayTopCardsView", viewModel);
+        }
+
+        private GameOverResult IsGameOver(List<int> deck)
+        {
+            if (deck.Count == 0)
+                return GameOverResult.Loser;
+            if (deck.Count == 32)
+                return GameOverResult.Winner;
+
+            return GameOverResult.None;
+        }
+        public async Task<IActionResult> GameResult(String result)
+        {
+            await InitializeDecks();
+            return View("Result", result); // Ensure there is a GameResult.cshtml view that can handle a string model
+        }
+
+        public async Task<IActionResult> RestartGame()
+        {
+            await InitializeDecks();
+            return RedirectToAction("SomeStartingAction"); // Redirect to the starting point of the game
         }
 
     }

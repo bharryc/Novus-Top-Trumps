@@ -17,7 +17,6 @@ namespace Novus_Top_Trumps.Controllers
         [Authorize]
         public IActionResult Index()
         {
-            
             List<CustomItemModel> customItems = new List<CustomItemModel>
             {
                 new CustomItemModel { Link = "../CarsCards/SelectAttribute", Name = "Cars" },
